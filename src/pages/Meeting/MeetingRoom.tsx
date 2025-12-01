@@ -93,13 +93,41 @@ const MeetingRoom: React.FC = () => {
       setMotionOwner('');
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to add agenda item';
-      setError(`Backend Error: ${errorMsg}. The MeetingService has a bug in the /agenda endpoint.`);
+      setError(errorMsg);
       console.error('Agenda creation failed:', err);
     }
   };
 
   const handleLeaveMeeting = () => {
     navigate('/dashboard');
+  };
+
+  const handleNextItem = async () => {
+    if (!meetingId || !meeting || !meeting.items) return;
+    const nextIndex = (meeting.current_item ?? -1) + 1;
+    if (nextIndex < meeting.items.length) {
+      try {
+        await ApiService.meetings.update(meetingId, { current_item: nextIndex });
+        const data = await ApiService.meetings.getDetails(meetingId);
+        setMeeting(data as Meeting);
+      } catch (err) {
+        setError('Failed to move to next item');
+      }
+    }
+  };
+
+  const handlePreviousItem = async () => {
+    if (!meetingId || !meeting) return;
+    const prevIndex = (meeting.current_item ?? 0) - 1;
+    if (prevIndex >= 0) {
+      try {
+        await ApiService.meetings.update(meetingId, { current_item: prevIndex });
+        const data = await ApiService.meetings.getDetails(meetingId);
+        setMeeting(data as Meeting);
+      } catch (err) {
+        setError('Failed to move to previous item');
+      }
+    }
   };
 
   if (loading) {
@@ -144,17 +172,68 @@ const MeetingRoom: React.FC = () => {
         <section className="presentation-section">
           <div className="presentation-placeholder">
             <h2>Meeting Agenda</h2>
+            
+            {/* Navigation Controls */}
+            {meeting.items && meeting.items.length > 0 && (
+              <div className="agenda-navigation" style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <button 
+                  onClick={handlePreviousItem} 
+                  disabled={(meeting.current_item ?? 0) <= 0}
+                  className="submit-btn"
+                  style={{ opacity: (meeting.current_item ?? 0) <= 0 ? 0.5 : 1 }}
+                >
+                  ← Previous
+                </button>
+                <span style={{ fontWeight: 'bold' }}>
+                  Item {(meeting.current_item ?? 0) + 1} of {meeting.items.length}
+                </span>
+                <button 
+                  onClick={handleNextItem} 
+                  disabled={(meeting.current_item ?? -1) >= meeting.items.length - 1}
+                  className="submit-btn"
+                  style={{ opacity: (meeting.current_item ?? -1) >= meeting.items.length - 1 ? 0.5 : 1 }}
+                >
+                  Next →
+                </button>
+              </div>
+            )}
+
             {meeting.items && meeting.items.length > 0 ? (
               <div className="agenda-list">
                 {meeting.items.map((item, index) => (
-                  <div key={index} className="agenda-item">
-                    <h3>{item.title}</h3>
-                    <span className="agenda-type">{item.type}</span>
-                    {item.description && <p>{item.description}</p>}
+                  <div 
+                    key={index} 
+                    className="agenda-item"
+                    style={{
+                      backgroundColor: index === (meeting.current_item ?? -1) ? '#e3f2fd' : 'white',
+                      border: index === (meeting.current_item ?? -1) ? '2px solid #2196F3' : '1px solid #ddd',
+                      padding: '15px',
+                      marginBottom: '10px',
+                      borderRadius: '4px'
+                    }}
+                  >
+                    {index === (meeting.current_item ?? -1) && (
+                      <span style={{ 
+                        backgroundColor: '#2196F3', 
+                        color: 'white', 
+                        padding: '2px 8px', 
+                        borderRadius: '3px',
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        marginRight: '10px'
+                      }}>
+                        CURRENT
+                      </span>
+                    )}
+                    <h3 style={{ display: 'inline' }}>{item.title}</h3>
+                    <span className="agenda-type" style={{ marginLeft: '10px', fontSize: '14px', color: '#666' }}>
+                      [{item.type}]
+                    </span>
+                    {item.description && <p style={{ marginTop: '10px' }}>{item.description}</p>}
                     {item.baseMotions && item.baseMotions.length > 0 && (
-                      <div className="motions">
+                      <div className="motions" style={{ marginTop: '10px' }}>
                         {item.baseMotions.map((motion, i) => (
-                          <div key={i} className="motion">
+                          <div key={i} className="motion" style={{ padding: '5px', backgroundColor: '#f5f5f5', marginTop: '5px', borderRadius: '3px' }}>
                             <strong>{motion.owner}:</strong> {motion.motion}
                           </div>
                         ))}

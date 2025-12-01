@@ -3,6 +3,6 @@
 
 export const keycloakConfig = {
   url: 'https://keycloak-dev.ltu-m7011e-2.se',  // Keycloak 17+ doesn't need /auth
-  realm: 'myapp',                                // Update this to your actual realm name
+  realm: 'master',                               // Using master realm
   clientId: 'meeting-frontend'                   // Client ID created in Keycloak
 };

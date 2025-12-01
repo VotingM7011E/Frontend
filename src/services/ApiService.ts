@@ -5,14 +5,11 @@
 
 import KeycloakService from './KeycloakService';
 
-// TEMPORARY: Direct connection to localhost Flask for testing
-const API_BASE_URL = 'http://localhost:80';
-
 // Use proxy for local development to avoid CORS
 // In production, this will be the actual service URL
-// const API_BASE_URL = import.meta.env.DEV 
-//   ? '/api'  // Use Vite proxy in development
-//   : 'http://meeting-service.ltu-m7011e-2.se';  // Direct URL in production
+const API_BASE_URL = import.meta.env.DEV 
+  ? '/api'  // Use Vite proxy in development (proxies to localhost:80)
+  : 'https://meeting-service.ltu-m7011e-2.se';  // Direct URL in production (uses staging cert)
 
 interface RequestOptions extends RequestInit {
   requiresAuth?: boolean;
