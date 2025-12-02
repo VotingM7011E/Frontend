@@ -22,9 +22,12 @@ const CreateMeeting: React.FC = () => {
       const data: any = await ApiService.meetings.create(title);
       console.log('Meeting created:', data);
       
-      // Response contains: meeting_id, meeting_code, meeting_name, etc.
-      if (data.meeting_code) {
-        setMeetingCode(data.meeting_code);
+      // Fetch meeting details to get the meeting code
+      const meetingDetails: any = await ApiService.meetings.getDetails(data.meeting_id);
+      console.log('Meeting details:', meetingDetails);
+      
+      if (meetingDetails.meeting_code) {
+        setMeetingCode(meetingDetails.meeting_code);
         // Show code for 3 seconds before navigating
         setTimeout(() => {
           navigate(`/meeting/${data.meeting_id}`);
