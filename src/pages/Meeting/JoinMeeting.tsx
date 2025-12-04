@@ -1,7 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../context/AuthContext';
-import MockApiService from '../../services/MockApiService';
+import ApiService from '../../services/ApiService';
 import './Meeting.css';
 
 const JoinMeeting: React.FC = () => {
@@ -9,7 +8,6 @@ const JoinMeeting: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,11 +15,18 @@ const JoinMeeting: React.FC = () => {
     setLoading(true);
 
     try {
-      // Using mock API for localhost testing
-      const data = await MockApiService.joinMeeting(meetingCode, user?.id || '');
-      navigate(`/meeting/${data.meetingId}`);
+      // Get meeting ID from meeting code using the API
+      const data: any = await ApiService.meetings.getIdByCode(meetingCode);
+      console.log('Meeting lookup result:', data);
+      
+      // Navigate to participant view (participants who join by code)
+      if (data.meeting_id) {
+        navigate(`/meeting/${data.meeting_id}/participant`);
+      } else {
+        setError('Invalid meeting code');
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'Meeting not found');
     } finally {
       setLoading(false);
     }
@@ -40,7 +45,7 @@ const JoinMeeting: React.FC = () => {
               value={meetingCode}
               onChange={(e) => setMeetingCode(e.target.value.toUpperCase())}
               required
-              placeholder="Enter meeting code (e.g., ABC123)"
+              placeholder="Enter meeting code (e.g., 123456)"
               maxLength={6}
             />
           </div>
