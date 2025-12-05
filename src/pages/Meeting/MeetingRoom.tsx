@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import './Meeting.css';
 
@@ -22,6 +22,8 @@ interface Meeting {
 const MeetingRoom: React.FC = () => {
   const { meetingId } = useParams<{ meetingId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const passedMeetingCode = location.state?.meetingCode;
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -36,9 +38,13 @@ const MeetingRoom: React.FC = () => {
     const fetchMeeting = async () => {
       try {
         if (meetingId) {
-          const data = await ApiService.meetings.getDetails(meetingId);
+          const data = await ApiService.meetings.getDetails(meetingId) as Meeting;
           console.log('Meeting data received:', data);
-          setMeeting(data as Meeting);
+          // If meeting code was passed via navigation, use it (avoids extra API call display delay)
+          if (passedMeetingCode && !data.meeting_code) {
+            data.meeting_code = passedMeetingCode;
+          }
+          setMeeting(data);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -48,7 +54,7 @@ const MeetingRoom: React.FC = () => {
     };
 
     fetchMeeting();
-  }, [meetingId]);
+  }, [meetingId, passedMeetingCode]);
 
   const handleAddAgendaItem = async (e: React.FormEvent) => {
     e.preventDefault();

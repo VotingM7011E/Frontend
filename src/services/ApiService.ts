@@ -85,7 +85,50 @@ class ApiService {
         throw new Error(errorMessage);
       }
 
-      return await response.json();
+      const responseText = await response.text();
+      console.log('API Response text:', responseText);
+      
+      try {
+        return JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('Failed to parse JSON response:', responseText);
+        throw new Error(`Invalid JSON response from server: ${responseText.substring(0, 100)}`);
+      }
+    } catch (error) {
+      console.error(`API Request Failed: ${endpoint}`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Request that expects plain text response (not JSON)
+   */
+  private async requestText(
+    endpoint: string,
+    options: RequestOptions = {}
+  ): Promise<string> {
+    const { requiresAuth = false, ...fetchOptions } = options;
+    const url = `${this.baseUrl}${endpoint}`;
+
+    try {
+      const headers = await this.getHeaders(requiresAuth);
+      
+      console.log('API Request (text):', options.method || 'GET', url);
+      
+      const response = await fetch(url, {
+        ...fetchOptions,
+        headers,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error Response:', response.status, errorText);
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const responseText = await response.text();
+      console.log('API Response text:', responseText);
+      return responseText;
     } catch (error) {
       console.error(`API Request Failed: ${endpoint}`, error);
       throw error;
@@ -119,12 +162,15 @@ class ApiService {
         requiresAuth: true,
       }),
 
-    // GET /code/{code} - Get meeting uuid from code
-    getIdByCode: (code: string) =>
-      this.request(`/code/${code}`, {
+    // GET /code/{code} - Get meeting uuid from code (returns plain text UUID)
+    getIdByCode: async (code: string) => {
+      const meetingId = await this.requestText(`/code/${code}`, {
         method: 'GET',
         requiresAuth: true,
-      }),
+      });
+      // Backend returns plain text UUID, wrap it in an object
+      return { meeting_id: meetingId };
+    },
   };
 
   /**

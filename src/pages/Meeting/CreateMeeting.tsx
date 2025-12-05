@@ -30,7 +30,9 @@ const CreateMeeting: React.FC = () => {
         setMeetingCode(meetingDetails.meeting_code);
         // Show code for 3 seconds before navigating
         setTimeout(() => {
-          navigate(`/meeting/${data.meeting_id}`);
+          navigate(`/meeting/${data.meeting_id}`, { 
+            state: { meetingCode: meetingDetails.meeting_code } 
+          });
         }, 3000);
       } else {
         navigate(`/meeting/${data.meeting_id}`);
