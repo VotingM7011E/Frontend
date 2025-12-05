@@ -24,23 +24,29 @@ class KeycloakService {
     });
 
     try {
+      console.log('🔐 Initializing Keycloak...');
       const authenticated = await this.keycloak.init({
         onLoad: 'check-sso',
         silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
         pkceMethod: 'S256',
         checkLoginIframe: false,
+        enableLogging: true, // Enable Keycloak debug logs
       });
 
+      console.log('🔐 Keycloak initialized. Authenticated:', authenticated);
       this.initialized = true;
 
       // Setup token refresh
       if (authenticated) {
+        console.log('✅ User is authenticated, setting up token refresh');
         this.setupTokenRefresh();
+      } else {
+        console.log('ℹ️ User is not authenticated');
       }
 
       return authenticated;
     } catch (error) {
-      console.error('Keycloak initialization failed:', error);
+      console.error('❌ Keycloak initialization failed:', error);
       throw error;
     }
   }

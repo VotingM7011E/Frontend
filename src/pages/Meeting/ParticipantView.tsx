@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
+import SocketService from '../../services/SocketService';
 import './Participant.css';
 
 interface AgendaItem {
@@ -41,11 +42,34 @@ const ParticipantView: React.FC = () => {
       }
     };
 
+    // Initial fetch
     fetchMeeting();
 
-    // Poll for updates every 3 seconds, should use websockets in futurecd 
-    const interval = setInterval(fetchMeeting, 3000);
-    return () => clearInterval(interval);
+    if (!meetingId) return;
+
+    // Connect to WebSocket and join meeting room
+    SocketService.connect();
+    SocketService.joinMeeting(meetingId);
+
+    // Listen for meeting updates from backend
+    SocketService.onMeetingUpdated((updatedMeeting: Meeting) => {
+      console.log('📡 Received meeting update via WebSocket:', updatedMeeting);
+      setMeeting(updatedMeeting);
+    });
+
+    // Also listen for next agenda item events
+    SocketService.onNextAgendaItem((data: any) => {
+      console.log('📡 Next agenda item event:', data);
+      // Optionally refetch to ensure consistency
+      fetchMeeting();
+    });
+
+    // Cleanup on unmount
+    return () => {
+      SocketService.leaveMeeting(meetingId);
+      SocketService.off('meeting_updated');
+      SocketService.off('Next Agenda Item');
+    };
   }, [meetingId]);
 
   const handleLeaveMeeting = () => {
