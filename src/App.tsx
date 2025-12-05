@@ -27,24 +27,32 @@ const App: React.FC = () => {
     // Initialize Keycloak on app startup
     const initKeycloak = async () => {
       try {
+        
+        console.log('🚀 Starting Keycloak initialization...');
+        console.log('Current URL:', window.location.href);
+        
         const authenticated = await KeycloakService.init();
+        console.log('Keycloak init result - authenticated:', authenticated);
+        
         setIsAuthenticated(authenticated);
         if (authenticated) {
           const profile = await KeycloakService.getUserProfile();
+          console.log('User profile loaded:', profile);
           if (profile) {
             setUser(profile);
           }
         }
       } catch (error) {
-        console.error('Keycloak initialization failed:', error);
+        console.error('❌ Keycloak initialization failed:', error);
         setIsAuthenticated(false);
       } finally {
+        console.log('✅ Keycloak initialization complete');
         setLoading(false);
       }
     };
     
     initKeycloak();
-  }, []);
+  }, );
 
   const handleLogin = async () => {
     // Redirect to Keycloak login
