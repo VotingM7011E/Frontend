@@ -9,7 +9,7 @@ import KeycloakService from './KeycloakService';
 // In production, this will be the actual service URL
 const API_BASE_URL = import.meta.env.DEV 
   ? '/api'  // Use Vite proxy in development (proxies to localhost:80)
-  : import.meta.env.VITE_MEETING_SERVICE_URL;  // Direct URL in production (uses staging cert)
+  : '/api/meeting-service';  // Direct URL in production (uses staging cert)
 
 interface RequestOptions extends RequestInit {
   requiresAuth?: boolean;
