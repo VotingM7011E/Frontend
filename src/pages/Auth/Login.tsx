@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../context/AuthContext';
 import './Auth.css';
@@ -6,16 +6,21 @@ import './Auth.css';
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const { handleLogin, isAuthenticated } = useContext(AuthContext);
+  const loginCalledRef = useRef(false);
 
   useEffect(() => {
     // If already authenticated, redirect to dashboard
     if (isAuthenticated) {
       navigate('/dashboard');
-    } else {
-      // Redirect to Keycloak login
+      return;
+    }
+
+    // Only call handleLogin once
+    if (!loginCalledRef.current) {
+      loginCalledRef.current = true;
       handleLogin();
     }
-  }, [isAuthenticated, navigate, handleLogin]);
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="auth-container">
