@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
+import SocketService from '../../services/SocketService';
 import './Meeting.css';
 
 interface AgendaItem {
@@ -53,7 +54,27 @@ const MeetingRoom: React.FC = () => {
       }
     };
 
+    // Initial fetch
     fetchMeeting();
+
+    if (!meetingId) return;
+
+    // Connect to WebSocket and join meeting room
+    SocketService.connect();
+    SocketService.joinMeeting(meetingId);
+
+    // Listen for meeting updates from backend
+    SocketService.onMeetingUpdated((updatedMeeting: Meeting) => {
+      console.log('📡 Meeting owner received update via WebSocket:', updatedMeeting);
+      setMeeting(updatedMeeting);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      SocketService.leaveMeeting(meetingId);
+      SocketService.off('meeting_updated');
+      SocketService.off('Next Agenda Item');
+    };
   }, [meetingId, passedMeetingCode]);
 
   const handleAddAgendaItem = async (e: React.FormEvent) => {
