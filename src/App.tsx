@@ -52,7 +52,7 @@ const App: React.FC = () => {
     };
     
     initKeycloak();
-  }, );
+  }, []); // Empty array means run only once on mount
 
   const handleLogin = async () => {
     // Redirect to Keycloak login
