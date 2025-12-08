@@ -5,7 +5,7 @@ class SocketService {
   private socket: Socket | null = null;
   private readonly SOCKET_URL = import.meta.env.DEV 
     ? 'http://localhost:80' 
-    : 'https://meeting-service.ltu-m7011e-2.se';
+    : 'https://voting-dev.ltu-m7011e-2.se';
 
   /**
    * Initialize and connect to the Socket.IO server
