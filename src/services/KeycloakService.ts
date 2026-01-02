@@ -92,6 +92,7 @@ class KeycloakService {
 
     try {
       const profile = await this.keycloak.loadUserProfile();
+      console.log(profile);
       return {
         id: profile.id || '',
         username: profile.username || '',
