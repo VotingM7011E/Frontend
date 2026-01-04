@@ -33,8 +33,8 @@ const ParticipantView: React.FC = () => {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [motions, _setMotions] = useState<Motion[]>([]);
-  const [motionsLoading, _setMotionsLoading] = useState(false);
+  const [motions, setMotions] = useState<Motion[]>([]);
+  const [motionsLoading, setMotionsLoading] = useState(false);
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -116,9 +116,14 @@ const ParticipantView: React.FC = () => {
     : null;
 
   // Fetch motions when current item is a motion type
-  /*useEffect(() => {
+  useEffect(() => {
     const fetchMotions = async () => {
+      console.log('🔍 fetchMotions called with currentItem:', currentItem);
+      console.log('🔍 currentItem?.type:', currentItem?.type);
+      console.log('🔍 currentItem?.motion_item_id:', currentItem?.motion_item_id);
+
       if (!currentItem || currentItem.type !== 'motion' || !currentItem.motion_item_id) {
+        console.log('🔍 Skipping motion fetch - conditions not met');
         setMotions([]);
         return;
       }
@@ -137,8 +142,8 @@ const ParticipantView: React.FC = () => {
     };
 
     fetchMotions();
-  }, [currentItem?.motion_item_id, currentItem?.type]);
-  */
+  }, [currentItem]);
+  
   return (
     <div className="participant-view-container">
       {/* Header */}
