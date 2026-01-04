@@ -164,8 +164,15 @@ const ParticipantView: React.FC = () => {
     fetchMotions();
   }, [meeting]); // Only depend on meeting, not its individual properties
   
+  console.log('🎯 About to calculate currentItem');
+  const currentItem = meeting.items && meeting.current_item !== undefined 
+    ? meeting.items[meeting.current_item] 
+    : null;
+  console.log('🎯 currentItem calculated:', currentItem);
+  
   return (
     <div className="participant-view-container">
+      console.log('🏗️ Rendering header');
       {/* Header */}
       <header className="participant-view-header">
         <h1>{meeting.meeting_name}</h1>
@@ -174,11 +181,13 @@ const ParticipantView: React.FC = () => {
         </p>
       </header>
 
+      console.log('🏗️ Rendering main');
       {/* Current Agenda Item */}
       <main className="participant-view-main">
         <div className="participant-current-item-card">
           {currentItem ? (
             <>
+              console.log('🏗️ Rendering current item');
               <div className="participant-current-badge">
                 CURRENT ITEM
               </div>
@@ -197,6 +206,7 @@ const ParticipantView: React.FC = () => {
               {/* Show motions when current item is a motion type */}
               {currentItem.type === 'motion' && (
                 <div className="participant-motions-section">
+                  console.log('🏗️ Rendering motions section');
                   <h3>Current Motions</h3>
                   {motionsLoading ? (
                     <p>Loading motions...</p>
@@ -217,6 +227,7 @@ const ParticipantView: React.FC = () => {
             </>
           ) : (
             <div className="participant-no-item">
+              console.log('🏗️ Rendering no item message');
               <h2>No agenda item is currently active</h2>
               <p>Please wait for the meeting to start</p>
             </div>
@@ -224,6 +235,7 @@ const ParticipantView: React.FC = () => {
         </div>
       </main>
 
+      console.log('🏗️ Rendering footer');
       {/* Footer */}
       <footer className="participant-view-footer">
         <button 
