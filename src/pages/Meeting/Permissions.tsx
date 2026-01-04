@@ -14,6 +14,7 @@ const Permissions: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [users, setUsers] = useState<UserRoles[]>([]);
+  const [meetingTitle, setMeetingTitle] = useState<string | null>(null);
   const [addViewUsername, setAddViewUsername] = useState('');
   const [addVoterUsername, setAddVoterUsername] = useState('');
   const [addManagerUsername, setAddManagerUsername] = useState('');
@@ -63,6 +64,20 @@ const Permissions: React.FC = () => {
 
   useEffect(() => {
     fetchAllUsersWithRoles();
+    // Fetch meeting details to get the title
+    const fetchMeetingTitle = async () => {
+      if (!meetingId) return;
+      try {
+        const res = await ApiService.meetings.getDetails(meetingId);
+        // Support both `title` and `meeting_name` depending on backend
+        setMeetingTitle(res?.title || res?.meeting_name || null);
+      } catch (err) {
+        // Don't block the page if meeting title can't be fetched
+        console.warn('Failed to fetch meeting details:', err);
+      }
+    };
+
+    fetchMeetingTitle();
   }, [meetingId]);
 
   const handleRemoveRole = async (username: string, role: string) => {
@@ -99,7 +114,7 @@ const Permissions: React.FC = () => {
       <header className="meeting-room-header">
         <div className="meeting-info">
           <h1>Permissions</h1>
-          <p>Manage user roles for meeting {meetingId}</p>
+          <p>Manage user roles for meeting {meetingTitle || meetingId}</p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <button onClick={() => navigate(`/meeting/${meetingId}`)} className="submit-btn">Back</button>
