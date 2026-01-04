@@ -65,19 +65,19 @@ const Permissions: React.FC = () => {
   useEffect(() => {
     fetchAllUsersWithRoles();
     // Fetch meeting details to get the title
-    const fetchMeetingTitle = async () => {
-      if (!meetingId) return;
-      try {
-        const res = await ApiService.meetings.getDetails(meetingId);
-        // Support both `title` and `meeting_name` depending on backend
-        setMeetingTitle(res?.title || res?.meeting_name || null);
-      } catch (err) {
-        // Don't block the page if meeting title can't be fetched
-        console.warn('Failed to fetch meeting details:', err);
-      }
-    };
-
-    fetchMeetingTitle();
+        const fetchMeetingTitle = async () => {
+          if (!meetingId) return;
+          try {
+            const res = await ApiService.meetings.getDetails(meetingId) as { title?: string; meeting_name?: string } | null;
+            // Support both `title` and `meeting_name` depending on backend
+            setMeetingTitle(res?.title || res?.meeting_name || null);
+          } catch (err) {
+            // Don't block the page if meeting title can't be fetched
+            console.warn('Failed to fetch meeting details:', err);
+          }
+        };
+    
+        fetchMeetingTitle();
   }, [meetingId]);
 
   const handleRemoveRole = async (username: string, role: string) => {
