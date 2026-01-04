@@ -220,7 +220,7 @@ class ApiService {
   agenda = {
     // POST /meetings/{id}/agenda - Add agenda item
     addItem: (meetingId: string, item: any) =>
-      this.request(`/meetings/${meetingId}/agenda`, {
+      this.request(`/meeting-service/meetings/${meetingId}/agenda`, {
         method: 'POST',
         body: JSON.stringify({ item }),
         requiresAuth: true,
@@ -228,7 +228,7 @@ class ApiService {
 
     // GET /meetings/{id}/agenda - Get all agenda items
     getAll: (meetingId: string) =>
-      this.request(`/meetings/${meetingId}/agenda`, {
+      this.request(`/meeting-service/meetings/${meetingId}/agenda`, {
         method: 'GET',
         requiresAuth: true,
       }),
