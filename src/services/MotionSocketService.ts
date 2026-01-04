@@ -4,8 +4,8 @@ import KeycloakService from './KeycloakService';
 class MotionSocketService {
   private socket: Socket | null = null;
   private readonly SOCKET_URL = import.meta.env.DEV 
-    ? 'http://localhost:80/motion-service' 
-    : 'https://voting-dev.ltu-m7011e-2.se/api/motion-service';
+    ? 'http://localhost:80' 
+    : 'https://voting-dev.ltu-m7011e-2.se';
 
   /**
    * Initialize and connect to the Motion Service Socket.IO server
@@ -21,7 +21,7 @@ class MotionSocketService {
       auth: {
         token: token
       },
-      path: '/socket.io',
+      path: '/api/motion-service/socket.io',
       transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
