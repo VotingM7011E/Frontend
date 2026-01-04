@@ -33,8 +33,8 @@ const ParticipantView: React.FC = () => {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [motions, setMotions] = useState<Motion[]>([]);
-  const [motionsLoading, setMotionsLoading] = useState(false);
+  const [motions, _setMotions] = useState<Motion[]>([]);
+  const [motionsLoading, _setMotionsLoading] = useState(false);
 
   useEffect(() => {
     const fetchMeeting = async () => {
