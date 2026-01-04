@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
 import ElectionManager from '../../components/ElectionManager';
 import './Meeting.css';
+import AuthContext from '../../context/AuthContext';
 
 interface AgendaItem {
   type: 'election' | 'motion' | 'info';
@@ -37,6 +38,8 @@ const MeetingRoom: React.FC = () => {
   const [motionOwner, setMotionOwner] = useState('');
   const [electionPositions, setElectionPositions] = useState<string[]>([]);
   const [newPosition, setNewPosition] = useState('');
+  const [hasManagePermission, setHasManagePermission] = useState(false);
+  const auth = useContext(AuthContext);
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -49,6 +52,21 @@ const MeetingRoom: React.FC = () => {
             data.meeting_code = passedMeetingCode;
           }
           setMeeting(data);
+          // After meeting loaded, fetch current user's permissions for this meeting
+          const username = auth.user?.username;
+          if (username) {
+            try {
+              const roles = await ApiService.permissions.getUserRoles(meetingId, username);
+              if (Array.isArray(roles)) {
+                setHasManagePermission(roles.includes('manage'));
+              } else {
+                setHasManagePermission(false);
+              }
+            } catch (permErr) {
+              console.warn('Failed to fetch permissions:', permErr);
+              setHasManagePermission(false);
+            }
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -59,6 +77,20 @@ const MeetingRoom: React.FC = () => {
 
     // Initial fetch
     fetchMeeting();
+    // Also refetch permissions when auth user changes
+    // (if user logs in/out while on the page)
+    const refetchPermissionsOnAuthChange = async () => {
+      const username = auth.user?.username;
+      if (!meetingId || !username) return;
+      try {
+        const roles = await ApiService.permissions.getUserRoles(meetingId, username);
+        setHasManagePermission(Array.isArray(roles) ? roles.includes('manage') : false);
+      } catch (err) {
+        console.warn('Failed to refresh permissions:', err);
+        setHasManagePermission(false);
+      }
+    };
+    refetchPermissionsOnAuthChange();
 
     if (!meetingId) return;
 
@@ -78,7 +110,7 @@ const MeetingRoom: React.FC = () => {
       SocketService.off('meeting_updated');
       SocketService.off('Next Agenda Item');
     };
-  }, [meetingId, passedMeetingCode]);
+  }, [meetingId, passedMeetingCode, auth.user]);
 
   const handleAddAgendaItem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,9 +233,16 @@ const MeetingRoom: React.FC = () => {
           <h1>{meeting.meeting_name}</h1>
           <p className="meeting-code">Code: {meeting.meeting_code}</p>
         </div>
-        <button onClick={handleLeaveMeeting} className="leave-btn">
-          Leave Meeting
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {hasManagePermission && (
+            <button onClick={() => navigate(`/meeting/${meeting.meeting_id}/permissions`)} className="submit-btn">
+              Permissions
+            </button>
+          )}
+          <button onClick={handleLeaveMeeting} className="leave-btn">
+            Leave Meeting
+          </button>
+        </div>
       </header>
 
       <main className="meeting-room-content">

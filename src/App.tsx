@@ -10,6 +10,7 @@ import CreateMeeting from './pages/Meeting/CreateMeeting';
 import JoinMeeting from './pages/Meeting/JoinMeeting';
 import MeetingRoom from './pages/Meeting/MeetingRoom';
 import ParticipantView from './pages/Meeting/ParticipantView';
+import Permissions from './pages/Meeting/Permissions';
 import KeycloakService from './services/KeycloakService';
 
 interface User {
@@ -83,6 +84,7 @@ const App: React.FC = () => {
             <Route path="/create-meeting" element={<CreateMeeting />} />
             <Route path="/join-meeting" element={<JoinMeeting />} />
             <Route path="/meeting/:meetingId" element={<MeetingRoom />} />
+            <Route path="/meeting/:meetingId/permissions" element={<Permissions />} />
             <Route path="/meeting/:meetingId/participant" element={<ParticipantView />} />
           </Route>
 
