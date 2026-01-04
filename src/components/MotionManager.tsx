@@ -2,12 +2,24 @@ import React, { useState, useEffect } from 'react';
 import ApiService from '../services/ApiService';
 import MotionSocketService from '../services/MotionSocketService';
 import KeycloakService from '../services/KeycloakService';
+import VoteManager from './VoteManager';
 import './MotionManager.css';
 
 interface Motion {
   motion_uuid: string;
   owner: string;
   motion: string;
+}
+
+interface MotionItem {
+  motion_item_id: string;
+  meeting_id: string;
+  motions: Motion[];
+  poll?: {
+    poll_uuid: string;
+    poll_state: string;
+    poll_options?: string[];
+  };
 }
 
 interface MotionManagerProps {
@@ -29,6 +41,8 @@ const MotionManager: React.FC<MotionManagerProps> = ({
   const [editingMotionId, setEditingMotionId] = useState<string | null>(null);
   const [editMotionText, setEditMotionText] = useState('');
   const [error, setError] = useState('');
+  const [activePollId, setActivePollId] = useState<string | null>(null);
+  const [votingActive, setVotingActive] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -39,6 +53,31 @@ const MotionManager: React.FC<MotionManagerProps> = ({
     };
     fetchUser();
   }, []);
+
+  // Check for active poll
+  useEffect(() => {
+    const checkForPoll = async () => {
+      if (!motionItemId) return;
+      
+      try {
+        const motionItem = await ApiService.motions.getMotionItem(motionItemId) as any;
+        console.log('📋 Motion item data:', motionItem);
+        
+        if (motionItem.poll && motionItem.poll.poll_uuid) {
+          setActivePollId(motionItem.poll.poll_uuid);
+          setVotingActive(motionItem.poll.poll_state === 'open' || motionItem.poll.poll_state === 'created');
+        }
+      } catch (err) {
+        console.error('Failed to fetch motion item:', err);
+      }
+    };
+
+    checkForPoll();
+    // Re-check periodically in case voting starts
+    const interval = setInterval(checkForPoll, 5000);
+    
+    return () => clearInterval(interval);
+  }, [motionItemId]);
 
   // Fetch motions and set up real-time updates
   useEffect(() => {
@@ -165,12 +204,30 @@ const MotionManager: React.FC<MotionManagerProps> = ({
     try {
       await ApiService.motions.startVoting(meetingId, motionItemId);
       setError('');
-      // Success feedback could be added here
+      // Poll should be created, refetch motion item to get poll_id
+      setTimeout(async () => {
+        const motionItem = await ApiService.motions.getMotionItem(motionItemId) as any;
+        if (motionItem.poll && motionItem.poll.poll_uuid) {
+          setActivePollId(motionItem.poll.poll_uuid);
+          setVotingActive(true);
+        }
+      }, 1000);
     } catch (err) {
       console.error('Failed to start voting:', err);
       setError('Failed to start voting: ' + (err instanceof Error ? err.message : 'Unknown error'));
     }
   };
+
+  // If voting is active, show VoteManager instead
+  if (votingActive && activePollId) {
+    return (
+      <VoteManager
+        meetingId={meetingId}
+        pollId={activePollId}
+        hasManagePermission={hasManagePermission}
+      />
+    );
+  }
 
   return (
     <div className="motion-manager">
