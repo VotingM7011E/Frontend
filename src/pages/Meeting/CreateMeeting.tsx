@@ -33,7 +33,7 @@ const CreateMeeting: React.FC = () => {
           navigate(`/meeting/${data.meeting_id}`, { 
             state: { meetingCode: meetingDetails.meeting_code } 
           });
-        }, 3000);
+        }, 1000);
       } else {
         navigate(`/meeting/${data.meeting_id}`);
       }

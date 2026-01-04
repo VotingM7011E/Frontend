@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
+import ElectionManager from '../../components/ElectionManager';
 import './Meeting.css';
 
 interface AgendaItem {
@@ -34,6 +35,8 @@ const MeetingRoom: React.FC = () => {
   const [agendaDescription, setAgendaDescription] = useState('');
   const [motionText, setMotionText] = useState('');
   const [motionOwner, setMotionOwner] = useState('');
+  const [electionPositions, setElectionPositions] = useState<string[]>([]);
+  const [newPosition, setNewPosition] = useState('');
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -81,6 +84,12 @@ const MeetingRoom: React.FC = () => {
     e.preventDefault();
     if (!meetingId) return;
 
+    // Validate election positions
+    if (agendaType === 'election' && electionPositions.length === 0) {
+      setError('Please add at least one position for the election');
+      return;
+    }
+
     try {
       let item: any;
       
@@ -101,7 +110,7 @@ const MeetingRoom: React.FC = () => {
         item = {
           type: 'election',
           title: agendaTitle,
-          positions: []  // Empty array for now
+          positions: electionPositions
         };
       }
 
@@ -118,6 +127,8 @@ const MeetingRoom: React.FC = () => {
       setAgendaDescription('');
       setMotionText('');
       setMotionOwner('');
+      setElectionPositions([]);
+      setNewPosition('');
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to add agenda item';
       setError(errorMsg);
@@ -266,6 +277,26 @@ const MeetingRoom: React.FC = () => {
                         ))}
                       </div>
                     )}
+                    {item.positions && item.positions.length > 0 && (
+                      <div className="positions" style={{ marginTop: '10px' }}>
+                        <strong>Positions:</strong>
+                        <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
+                          {item.positions.map((pos, i) => (
+                            <li key={i}>{pos}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {/* Show Election Manager for current election item */}
+                    {index === (meeting.current_item ?? -1) && item.type === 'election' && item.positions && (
+                      <div style={{ marginTop: '15px', padding: '15px', background: 'white', borderRadius: '6px' }}>
+                        <ElectionManager
+                          meetingId={meeting.meeting_id}
+                          meetingCode={meeting.meeting_code}
+                          positions={item.positions}
+                        />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -335,6 +366,63 @@ const MeetingRoom: React.FC = () => {
                     />
                   </div>
                 </>
+              )}
+
+              {agendaType === 'election' && (
+                <div className="form-group">
+                  <label>Positions to Elect</label>
+                  <div style={{ marginBottom: '10px' }}>
+                    {electionPositions.map((pos, index) => (
+                      <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
+                        <span style={{ flex: 1, padding: '8px', background: '#f0f0f0', borderRadius: '4px' }}>
+                          {pos}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setElectionPositions(electionPositions.filter((_, i) => i !== index))}
+                          style={{ padding: '4px 12px', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <input
+                      type="text"
+                      value={newPosition}
+                      onChange={(e) => setNewPosition(e.target.value)}
+                      placeholder="e.g., President"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (newPosition.trim()) {
+                            setElectionPositions([...electionPositions, newPosition.trim()]);
+                            setNewPosition('');
+                          }
+                        }
+                      }}
+                      style={{ flex: 1 }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newPosition.trim()) {
+                          setElectionPositions([...electionPositions, newPosition.trim()]);
+                          setNewPosition('');
+                        }
+                      }}
+                      style={{ padding: '8px 16px', background: '#2196F3', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      Add Position
+                    </button>
+                  </div>
+                  {electionPositions.length === 0 && (
+                    <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+                      Add at least one position to elect
+                    </p>
+                  )}
+                </div>
               )}
 
               <button type="submit" className="submit-btn">Add Item</button>
