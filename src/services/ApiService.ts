@@ -233,6 +233,41 @@ class ApiService {
         requiresAuth: true,
       }),
   };
+
+  /**
+   * Motion Endpoints - Motion Service
+   */
+  motions = {
+    // GET /items/{motion_item_id}/ - Get motion item info
+    getMotionItem: (motionItemId: string) =>
+      this.request(`/motion-service/items/${motionItemId}/`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
+
+    // GET /items/{motion_item_id}/motions - Get all motions for a motion item
+    getMotions: (motionItemId: string) =>
+      this.request(`/motion-service/items/${motionItemId}/motions`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
+
+    // POST /items/{motion_item_id}/motions - Add a motion
+    createMotion: (motionItemId: string, motion: string) =>
+      this.request(`/motion-service/items/${motionItemId}/motions`, {
+        method: 'POST',
+        body: JSON.stringify({ motion }),
+        requiresAuth: true,
+      }),
+
+    // PATCH /items/{motion_item_id}/motions/{motion_id} - Update a motion
+    updateMotion: (motionItemId: string, motionId: string, motion: string) =>
+      this.request(`/motion-service/items/${motionItemId}/motions/${motionId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ motion }),
+        requiresAuth: true,
+      }),
+  };
 }
 
 export default new ApiService();

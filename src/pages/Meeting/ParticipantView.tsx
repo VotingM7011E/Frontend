@@ -10,6 +10,13 @@ interface AgendaItem {
   description?: string;
   positions?: string[];
   baseMotions?: Array<{ owner: string; motion: string }>;
+  motion_item_id?: string; // UUID linking to motion-service
+}
+
+interface Motion {
+  motion_uuid: string;
+  owner: string;
+  motion: string;
 }
 
 interface Meeting {
@@ -26,6 +33,8 @@ const ParticipantView: React.FC = () => {
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [motions, setMotions] = useState<Motion[]>([]);
+  const [motionsLoading, setMotionsLoading] = useState(false);
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -106,6 +115,30 @@ const ParticipantView: React.FC = () => {
     ? meeting.items[meeting.current_item] 
     : null;
 
+  // Fetch motions when current item is a motion type
+  useEffect(() => {
+    const fetchMotions = async () => {
+      if (!currentItem || currentItem.type !== 'motion' || !currentItem.motion_item_id) {
+        setMotions([]);
+        return;
+      }
+
+      setMotionsLoading(true);
+      try {
+        const data = await ApiService.motions.getMotions(currentItem.motion_item_id) as Motion[];
+        console.log('Fetched motions:', data);
+        setMotions(data || []);
+      } catch (err) {
+        console.error('Failed to fetch motions:', err);
+        setMotions([]);
+      } finally {
+        setMotionsLoading(false);
+      }
+    };
+
+    fetchMotions();
+  }, [currentItem?.motion_item_id, currentItem?.type]);
+
   return (
     <div className="participant-view-container">
       {/* Header */}
@@ -134,6 +167,27 @@ const ParticipantView: React.FC = () => {
                 <p className="participant-item-description">
                   {currentItem.description}
                 </p>
+              )}
+
+              {/* Show motions when current item is a motion type */}
+              {currentItem.type === 'motion' && (
+                <div className="participant-motions-section">
+                  <h3>Current Motions</h3>
+                  {motionsLoading ? (
+                    <p>Loading motions...</p>
+                  ) : motions.length === 0 ? (
+                    <p className="no-motions">No motions have been submitted yet.</p>
+                  ) : (
+                    <ul className="motions-list">
+                      {motions.map((m) => (
+                        <li key={m.motion_uuid} className="motion-item">
+                          <span className="motion-owner">{m.owner}:</span>
+                          <span className="motion-text">{m.motion}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               )}
             </>
           ) : (

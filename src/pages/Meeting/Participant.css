@@ -112,6 +112,49 @@
   background-color: #d32f2f;
 }
 
+/* Motions section styles */
+.participant-motions-section {
+  margin-top: 30px;
+  text-align: left;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.participant-motions-section h3 {
+  font-size: 18px;
+  margin: 0 0 15px 0;
+  color: #333;
+}
+
+.no-motions {
+  color: #999;
+  font-style: italic;
+}
+
+.motions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.motion-item {
+  background-color: #f9f9f9;
+  border-left: 4px solid #2196F3;
+  padding: 12px 16px;
+  margin-bottom: 10px;
+  border-radius: 0 6px 6px 0;
+}
+
+.motion-owner {
+  font-weight: 600;
+  color: #2196F3;
+  margin-right: 8px;
+}
+
+.motion-text {
+  color: #333;
+}
+
 @media (max-width: 768px) {
   .participant-view-container {
     padding: 15px;
