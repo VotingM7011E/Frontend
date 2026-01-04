@@ -4,6 +4,7 @@ import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
 import ElectionManager from '../../components/ElectionManager';
 import MotionManager from '../../components/MotionManager';
+import CurrentAgendaItem from '../../components/CurrentAgendaItem';
 import './Meeting.css';
 import AuthContext from '../../context/AuthContext';
 
@@ -309,6 +310,15 @@ const MeetingRoom: React.FC = () => {
                       [{item.type}]
                     </span>
                     {item.description && <p style={{ marginTop: '10px' }}>{item.description}</p>}
+                    {item.baseMotions && item.baseMotions.length > 0 && (
+                      <div className="motions" style={{ marginTop: '10px' }}>
+                        {item.baseMotions.map((motion, i) => (
+                          <div key={i} className="motion" style={{ padding: '5px', backgroundColor: '#f5f5f5', marginTop: '5px', borderRadius: '3px' }}>
+                            <strong>{motion.owner}:</strong> {motion.motion}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {item.positions && item.positions.length > 0 && (
                       <div className="positions" style={{ marginTop: '10px' }}>
                         <strong>Positions:</strong>
@@ -473,12 +483,15 @@ const MeetingRoom: React.FC = () => {
         )}
 
         <section className="interaction-section">
-          <h2>Interaction Panel</h2>
+          <h2>Current Item - Participant View</h2>
           <div className="interaction-content">
-            <div className="voting-area">
-              <h3>Vote on Current Item</h3>
-              <p>Current item: {meeting.current_item !== undefined ? meeting.current_item : 'None'}</p>
-            </div>
+            <CurrentAgendaItem
+              meetingId={meeting.meeting_id}
+              currentItem={meeting.items && meeting.current_item !== undefined 
+                ? meeting.items[meeting.current_item] 
+                : null}
+              className="participant-current-item-card"
+            />
           </div>
         </section>
       </main>

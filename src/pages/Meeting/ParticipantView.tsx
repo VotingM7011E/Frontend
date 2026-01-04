@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
-import MotionManager from '../../components/MotionManager';
+import CurrentAgendaItem from '../../components/CurrentAgendaItem';
 import './Participant.css';
 
 interface AgendaItem {
@@ -12,12 +12,6 @@ interface AgendaItem {
   positions?: string[];
   baseMotions?: Array<{ owner: string; motion: string }>;
   motion_item_id?: string; // UUID linking to motion-service
-}
-
-interface Motion {
-  motion_uuid: string;
-  owner: string;
-  motion: string;
 }
 
 interface Meeting {
@@ -137,40 +131,10 @@ const ParticipantView: React.FC = () => {
       {/* Current Agenda Item */}
       <main className="participant-view-main">
         <div className="participant-current-item-card">
-          {currentItem ? (
-            <>
-              <div className="participant-current-badge">
-                CURRENT ITEM
-              </div>
-              <h2 className="participant-item-title">
-                {currentItem.title}
-              </h2>
-              <div className="participant-item-type">
-                {currentItem.type}
-              </div>
-              {currentItem.description && (
-                <p className="participant-item-description">
-                  {currentItem.description}
-                </p>
-              )}
-
-              {/* Show Motion Manager when current item is a motion type */}
-              {currentItem.type === 'motion' && currentItem.motion_item_id && (
-                <div style={{ marginTop: '20px' }}>
-                  <MotionManager
-                    meetingId={meeting.meeting_id}
-                    motionItemId={currentItem.motion_item_id}
-                    initialMotions={currentItem.baseMotions}
-                  />
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="participant-no-item">
-              <h2>No agenda item is currently active</h2>
-              <p>Please wait for the meeting to start</p>
-            </div>
-          )}
+          <CurrentAgendaItem
+            meetingId={meeting.meeting_id}
+            currentItem={currentItem}
+          />
         </div>
       </main>
 

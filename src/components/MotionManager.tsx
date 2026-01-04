@@ -17,10 +17,7 @@ interface MotionManagerProps {
 }
 
 const MotionManager: React.FC<MotionManagerProps> = ({ 
-  meetingId, 
-  motionItemId,
-  initialMotions = []
-}) => {
+  motionItemId}) => {
   const [motions, setMotions] = useState<Motion[]>([]);
   const [motionsLoading, setMotionsLoading] = useState(false);
   const [currentUsername, setCurrentUsername] = useState<string>('');
