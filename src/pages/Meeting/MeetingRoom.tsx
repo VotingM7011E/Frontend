@@ -329,16 +329,6 @@ const MeetingRoom: React.FC = () => {
                         </ul>
                       </div>
                     )}
-                    {/* Show Election Manager for current election item */}
-                    {index === (meeting.current_item ?? -1) && item.type === 'election' && item.positions && (
-                      <div style={{ marginTop: '15px', padding: '15px', background: 'white', borderRadius: '6px' }}>
-                        <ElectionManager
-                          meetingId={meeting.meeting_id}
-                          meetingCode={meeting.meeting_code}
-                          positions={item.positions}
-                        />
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
