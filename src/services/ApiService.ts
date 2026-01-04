@@ -268,9 +268,9 @@ class ApiService {
         requiresAuth: true,
       }),
 
-    // POST /meetings/{meeting_id}/motion-items/{motion_item_id}/start-voting - Start voting on motions
+    // POST /meetings/{meeting_id}/motion-items/{motion_item_id}/start_vote - Start voting on motions
     startVoting: (meetingId: string, motionItemId: string) =>
-      this.request(`/meeting-service/meetings/${meetingId}/motion-items/${motionItemId}/start-voting`, {
+      this.request(`/meeting-service/meetings/${meetingId}/motion-items/${motionItemId}/start_vote`, {
         method: 'POST',
         requiresAuth: true,
       }),
