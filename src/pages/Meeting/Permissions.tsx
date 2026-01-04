@@ -14,6 +14,9 @@ const Permissions: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [users, setUsers] = useState<UserRoles[]>([]);
+  const [addViewUsername, setAddViewUsername] = useState('');
+  const [addVoterUsername, setAddVoterUsername] = useState('');
+  const [addManagerUsername, setAddManagerUsername] = useState('');
 
   const fetchAllUsersWithRoles = async () => {
     if (!meetingId) return;
@@ -62,6 +65,35 @@ const Permissions: React.FC = () => {
     fetchAllUsersWithRoles();
   }, [meetingId]);
 
+  const handleRemoveRole = async (username: string, role: string) => {
+    if (!meetingId) return;
+    setLoading(true);
+    setError('');
+    try {
+      await ApiService.permissions.removeUserRole(meetingId, username, role);
+      await fetchAllUsersWithRoles();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove role');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddRolesForUser = async (username: string, roles: string[]) => {
+    if (!meetingId || !username) return;
+    setLoading(true);
+    setError('');
+    try {
+      // Replace the user's roles with the desired set
+      await ApiService.permissions.replaceUserRoles(meetingId, username, roles);
+      await fetchAllUsersWithRoles();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to add roles');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="meeting-room-container">
       <header className="meeting-room-header">
@@ -78,6 +110,58 @@ const Permissions: React.FC = () => {
       <main className="meeting-room-content">
         <section style={{ marginBottom: '20px' }}>
           <h2>Users & Roles</h2>
+          <div style={{ margin: '12px 0', display: 'grid', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                placeholder="username for view-only"
+                value={addViewUsername}
+                onChange={(e) => setAddViewUsername(e.target.value)}
+              />
+              <button
+                className="submit-btn"
+                onClick={() => {
+                  handleAddRolesForUser(addViewUsername.trim(), ['view']);
+                  setAddViewUsername('');
+                }}
+              >
+                Add view-only
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                placeholder="username for voter (view+vote)"
+                value={addVoterUsername}
+                onChange={(e) => setAddVoterUsername(e.target.value)}
+              />
+              <button
+                className="submit-btn"
+                onClick={() => {
+                  handleAddRolesForUser(addVoterUsername.trim(), ['view', 'vote']);
+                  setAddVoterUsername('');
+                }}
+              >
+                Add voter
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                placeholder="username for manager (view+manage)"
+                value={addManagerUsername}
+                onChange={(e) => setAddManagerUsername(e.target.value)}
+              />
+              <button
+                className="submit-btn"
+                onClick={() => {
+                  handleAddRolesForUser(addManagerUsername.trim(), ['view', 'manage']);
+                  setAddManagerUsername('');
+                }}
+              >
+                Add manager
+              </button>
+            </div>
+          </div>
           {loading && <p>Loading...</p>}
           {error && <p className="error-message">{error}</p>}
 
@@ -95,7 +179,14 @@ const Permissions: React.FC = () => {
                 {users.map((u) => (
                   <tr key={u.username}>
                     <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{u.username}</td>
-                    <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>{u.roles.join(', ')}</td>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
+                      {u.roles.map((r) => (
+                        <span key={r} style={{ marginRight: '8px', display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
+                          <span>{r}</span>
+                          <button onClick={() => handleRemoveRole(u.username, r)} className="submit-btn" style={{ padding: '4px 8px' }}>Remove</button>
+                        </span>
+                      ))}
+                    </td>
                   </tr>
                 ))}
               </tbody>
