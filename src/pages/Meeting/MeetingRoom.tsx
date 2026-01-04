@@ -2,8 +2,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
-import ElectionManager from '../../components/ElectionManager';
-import MotionManager from '../../components/MotionManager';
 import CurrentAgendaItem from '../../components/CurrentAgendaItem';
 import './Meeting.css';
 import AuthContext from '../../context/AuthContext';
