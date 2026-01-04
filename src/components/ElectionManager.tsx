@@ -61,7 +61,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                meeting_code: meetingCode,
+                meeting_id: meetingId,
                 position_name: positionName
               })
             });
