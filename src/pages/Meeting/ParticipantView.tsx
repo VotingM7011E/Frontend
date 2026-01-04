@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
+import MotionSocketService from '../../services/MotionSocketService';
 import KeycloakService from '../../services/KeycloakService';
 import './Participant.css';
 
@@ -97,7 +98,7 @@ const ParticipantView: React.FC = () => {
     };
   }, [meetingId]);
 
-  // Fetch motions when current item is a motion type
+  // Fetch motions when current item is a motion type and set up real-time updates
   useEffect(() => {
     console.log('🔍 useEffect triggered, meeting exists:', !!meeting);
 
@@ -119,11 +120,13 @@ const ParticipantView: React.FC = () => {
       return;
     }
 
+    const motionItemId = currentItem.motion_item_id;
+
     console.log('🔍 Fetching motions...');
     const fetchMotions = async () => {
       setMotionsLoading(true);
       try {
-        const data = await ApiService.motions.getMotions(currentItem.motion_item_id || "") as Motion[];
+        const data = await ApiService.motions.getMotions(motionItemId) as Motion[];
         console.log('✅ Fetched motions:', data);
         setMotions(data || []);
       } catch (err) {
@@ -135,6 +138,44 @@ const ParticipantView: React.FC = () => {
     };
 
     fetchMotions();
+
+    // Connect to Motion Service WebSocket and join motion item room
+    MotionSocketService.connect();
+    MotionSocketService.joinMotionItem(motionItemId);
+
+    // Listen for motion added events
+    const handleMotionAdded = (data: any) => {
+      console.log('📡 Motion added:', data);
+      if (data.motion_item_id === motionItemId) {
+        setMotions(prev => {
+          // Avoid duplicates
+          if (prev.some(m => m.motion_uuid === data.motion.motion_uuid)) {
+            return prev;
+          }
+          return [...prev, data.motion];
+        });
+      }
+    };
+
+    // Listen for motion updated events
+    const handleMotionUpdated = (data: any) => {
+      console.log('📡 Motion updated:', data);
+      if (data.motion_item_id === motionItemId) {
+        setMotions(prev => prev.map(m => 
+          m.motion_uuid === data.motion.motion_uuid ? data.motion : m
+        ));
+      }
+    };
+
+    MotionSocketService.onMotionAdded(handleMotionAdded);
+    MotionSocketService.onMotionUpdated(handleMotionUpdated);
+
+    // Cleanup on unmount or when motion item changes
+    return () => {
+      MotionSocketService.leaveMotionItem(motionItemId);
+      MotionSocketService.off('motion_added');
+      MotionSocketService.off('motion_updated');
+    };
   }, [meeting]);
 
   const handleLeaveMeeting = () => {
