@@ -165,10 +165,6 @@ const ParticipantView: React.FC = () => {
   }, [meeting]); // Only depend on meeting, not its individual properties
   
   console.log('🎯 About to calculate currentItem');
-  const currentItem = meeting.items && meeting.current_item !== undefined 
-    ? meeting.items[meeting.current_item] 
-    : null;
-  console.log('🎯 currentItem calculated:', currentItem);
   
   return (
     <div className="participant-view-container">
