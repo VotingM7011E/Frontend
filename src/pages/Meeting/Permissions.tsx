@@ -111,14 +111,17 @@ const Permissions: React.FC = () => {
         <section style={{ marginBottom: '20px' }}>
           <h2>Users & Roles</h2>
           <div style={{ margin: '12px 0', display: 'grid', gap: '8px' }}>
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                placeholder="username for view-only"
-                value={addViewUsername}
-                onChange={(e) => setAddViewUsername(e.target.value)}
-              />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Username (view-only)</label>
+                <input
+                  placeholder="username for view-only"
+                  value={addViewUsername}
+                  onChange={(e) => setAddViewUsername(e.target.value)}
+                />
+              </div>
               <button
-                className="submit-btn"
+                className="submit-btn small-btn"
                 onClick={() => {
                   handleAddRolesForUser(addViewUsername.trim(), ['view']);
                   setAddViewUsername('');
@@ -128,14 +131,17 @@ const Permissions: React.FC = () => {
               </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                placeholder="username for voter (view+vote)"
-                value={addVoterUsername}
-                onChange={(e) => setAddVoterUsername(e.target.value)}
-              />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Username (voter)</label>
+                <input
+                  placeholder="username for voter (view+vote)"
+                  value={addVoterUsername}
+                  onChange={(e) => setAddVoterUsername(e.target.value)}
+                />
+              </div>
               <button
-                className="submit-btn"
+                className="submit-btn small-btn"
                 onClick={() => {
                   handleAddRolesForUser(addVoterUsername.trim(), ['view', 'vote']);
                   setAddVoterUsername('');
@@ -145,14 +151,17 @@ const Permissions: React.FC = () => {
               </button>
             </div>
 
-            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                placeholder="username for manager (view+manage)"
-                value={addManagerUsername}
-                onChange={(e) => setAddManagerUsername(e.target.value)}
-              />
+            <div className="form-row">
+              <div className="form-group">
+                <label>Username (manager)</label>
+                <input
+                  placeholder="username for manager (view+manage)"
+                  value={addManagerUsername}
+                  onChange={(e) => setAddManagerUsername(e.target.value)}
+                />
+              </div>
               <button
-                className="submit-btn"
+                className="submit-btn small-btn"
                 onClick={() => {
                   handleAddRolesForUser(addManagerUsername.trim(), ['view', 'manage']);
                   setAddManagerUsername('');
@@ -183,7 +192,7 @@ const Permissions: React.FC = () => {
                       {u.roles.map((r) => (
                         <span key={r} style={{ marginRight: '8px', display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
                           <span>{r}</span>
-                          <button onClick={() => handleRemoveRole(u.username, r)} className="submit-btn" style={{ padding: '4px 8px' }}>Remove</button>
+                          <button onClick={() => handleRemoveRole(u.username, r)} className="submit-btn small-btn">Remove</button>
                         </span>
                       ))}
                     </td>
