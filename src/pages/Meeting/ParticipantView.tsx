@@ -117,24 +117,29 @@ const ParticipantView: React.FC = () => {
 
   // Fetch motions when current item is a motion type
   useEffect(() => {
+    console.log('🔍 useEffect triggered');
+
+    const currentItem = meeting.items && meeting.current_item !== undefined
+      ? meeting.items[meeting.current_item]
+      : null;
+
+    console.log('🔍 currentItem:', currentItem);
+
+    if (!currentItem || currentItem.type !== 'motion' || !currentItem.motion_item_id) {
+      console.log('🔍 Skipping motion fetch');
+      setMotions([]);
+      return;
+    }
+
+    console.log('🔍 Fetching motions...');
     const fetchMotions = async () => {
-      console.log('🔍 fetchMotions called with currentItem:', currentItem);
-      console.log('🔍 currentItem?.type:', currentItem?.type);
-      console.log('🔍 currentItem?.motion_item_id:', currentItem?.motion_item_id);
-
-      if (!currentItem || currentItem.type !== 'motion' || !currentItem.motion_item_id) {
-        console.log('🔍 Skipping motion fetch - conditions not met');
-        setMotions([]);
-        return;
-      }
-
       setMotionsLoading(true);
       try {
-        const data = await ApiService.motions.getMotions(currentItem.motion_item_id) as Motion[];
-        console.log('Fetched motions:', data);
+        const data = await ApiService.motions.getMotions(currentItem.motion_item_id || "") as Motion[];
+        console.log('✅ Fetched motions:', data);
         setMotions(data || []);
       } catch (err) {
-        console.error('Failed to fetch motions:', err);
+        console.error('❌ Failed to fetch motions:', err);
         setMotions([]);
       } finally {
         setMotionsLoading(false);
@@ -142,7 +147,7 @@ const ParticipantView: React.FC = () => {
     };
 
     fetchMotions();
-  }, [currentItem]);
+  }, [meeting?.current_item, meeting?.items]); // Use stable meeting properties
   
   return (
     <div className="participant-view-container">
