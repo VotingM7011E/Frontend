@@ -17,7 +17,6 @@ interface Nomination {
 
 interface ElectionManagerProps {
   meetingId: string;
-  meetingCode: string;
   positions: string[];
   onClose?: () => void;
 }
@@ -28,7 +27,6 @@ const ELECTION_SERVICE_URL = import.meta.env.DEV
 
 const ElectionManager: React.FC<ElectionManagerProps> = ({ 
   meetingId, 
-  meetingCode, 
   positions,
   onClose 
 }) => {
@@ -85,7 +83,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
     if (positions.length > 0) {
       initializePositions();
     }
-  }, [meetingId, meetingCode, positions]);
+  }, [meetingId, positions]);
 
   const loadNominations = async (positionId: number) => {
     try {

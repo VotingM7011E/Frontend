@@ -329,16 +329,6 @@ const MeetingRoom: React.FC = () => {
                         </ul>
                       </div>
                     )}
-                    {/* Show Motion Manager for current motion item */}
-                    {index === (meeting.current_item ?? -1) && item.type === 'motion' && item.motion_item_id && (
-                      <div style={{ marginTop: '15px' }}>
-                        <MotionManager
-                          meetingId={meeting.meeting_id}
-                          motionItemId={item.motion_item_id}
-                          initialMotions={item.baseMotions}
-                        />
-                      </div>
-                    )}
                     {/* Show Election Manager for current election item */}
                     {index === (meeting.current_item ?? -1) && item.type === 'election' && item.positions && (
                       <div style={{ marginTop: '15px', padding: '15px', background: 'white', borderRadius: '6px' }}>

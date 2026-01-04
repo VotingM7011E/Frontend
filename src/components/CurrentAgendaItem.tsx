@@ -1,5 +1,6 @@
 import React from 'react';
 import MotionManager from './MotionManager';
+import ElectionManager from './ElectionManager';
 
 interface AgendaItem {
   type: 'election' | 'motion' | 'info';
@@ -62,12 +63,10 @@ const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({
       {/* Show positions for election type */}
       {currentItem.type === 'election' && currentItem.positions && currentItem.positions.length > 0 && (
         <div style={{ marginTop: '20px', textAlign: 'left' }}>
-          <h3 style={{ fontSize: '18px', marginBottom: '10px' }}>Positions:</h3>
-          <ul style={{ paddingLeft: '20px' }}>
-            {currentItem.positions.map((pos, i) => (
-              <li key={i} style={{ marginBottom: '5px' }}>{pos}</li>
-            ))}
-          </ul>
+          <ElectionManager
+            meetingId={meetingId}
+            positions={currentItem.positions}
+          />
         </div>
       )}
     </div>
