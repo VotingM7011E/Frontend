@@ -1,0 +1,231 @@
+/* Motion Manager Styles */
+.motion-manager {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.motion-manager h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.motion-manager h4 {
+  margin: 0 0 15px 0;
+  color: #555;
+  font-size: 16px;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* Motions Section */
+.motions-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.no-motions {
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+  text-align: center;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+}
+
+.motions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.motion-item {
+  background-color: #f9f9f9;
+  border-left: 4px solid #2196F3;
+  padding: 15px;
+  margin-bottom: 12px;
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 15px;
+  transition: background-color 0.2s;
+}
+
+.motion-item:hover {
+  background-color: #f0f0f0;
+}
+
+.motion-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.motion-owner {
+  font-weight: 600;
+  color: #2196F3;
+  font-size: 14px;
+}
+
+.motion-text {
+  color: #333;
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.motion-edit-btn {
+  padding: 8px 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  flex-shrink: 0;
+}
+
+.motion-edit-btn:hover {
+  background-color: #45a049;
+}
+
+/* Motion Edit Form */
+.motion-edit-form {
+  width: 100%;
+}
+
+.motion-edit-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+
+.motion-edit-input:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.motion-edit-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.motion-save-btn {
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.motion-save-btn:hover {
+  background-color: #45a049;
+}
+
+.motion-cancel-btn {
+  padding: 10px 20px;
+  background-color: #999;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.motion-cancel-btn:hover {
+  background-color: #777;
+}
+
+/* New Motion Form */
+.new-motion-form {
+  margin-top: 20px;
+}
+
+.new-motion-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 15px;
+  transition: border-color 0.2s;
+}
+
+.new-motion-input:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.new-motion-btn {
+  padding: 12px 24px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.new-motion-btn:hover:not(:disabled) {
+  background-color: #1976D2;
+}
+
+.new-motion-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .motion-manager {
+    padding: 15px;
+  }
+
+  .motion-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .motion-edit-btn {
+    width: 100%;
+  }
+
+  .motion-edit-buttons {
+    flex-direction: column;
+  }
+
+  .motion-save-btn,
+  .motion-cancel-btn {
+    width: 100%;
+  }
+}

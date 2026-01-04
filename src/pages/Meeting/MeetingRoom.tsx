@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
 import ElectionManager from '../../components/ElectionManager';
+import MotionManager from '../../components/MotionManager';
 import './Meeting.css';
 import AuthContext from '../../context/AuthContext';
 
@@ -11,7 +12,8 @@ interface AgendaItem {
   title: string;
   description?: string;
   positions?: string[];
-  baseMotions?: Array<{ owner: string; motion: string }>;
+  baseMotions?: Array<{ owner: string; motion: string }>
+  motion_item_id?: string;
 }
 
 interface Meeting {
@@ -307,15 +309,6 @@ const MeetingRoom: React.FC = () => {
                       [{item.type}]
                     </span>
                     {item.description && <p style={{ marginTop: '10px' }}>{item.description}</p>}
-                    {item.baseMotions && item.baseMotions.length > 0 && (
-                      <div className="motions" style={{ marginTop: '10px' }}>
-                        {item.baseMotions.map((motion, i) => (
-                          <div key={i} className="motion" style={{ padding: '5px', backgroundColor: '#f5f5f5', marginTop: '5px', borderRadius: '3px' }}>
-                            <strong>{motion.owner}:</strong> {motion.motion}
-                          </div>
-                        ))}
-                      </div>
-                    )}
                     {item.positions && item.positions.length > 0 && (
                       <div className="positions" style={{ marginTop: '10px' }}>
                         <strong>Positions:</strong>
@@ -324,6 +317,16 @@ const MeetingRoom: React.FC = () => {
                             <li key={i}>{pos}</li>
                           ))}
                         </ul>
+                      </div>
+                    )}
+                    {/* Show Motion Manager for current motion item */}
+                    {index === (meeting.current_item ?? -1) && item.type === 'motion' && item.motion_item_id && (
+                      <div style={{ marginTop: '15px' }}>
+                        <MotionManager
+                          meetingId={meeting.meeting_id}
+                          motionItemId={item.motion_item_id}
+                          initialMotions={item.baseMotions}
+                        />
                       </div>
                     )}
                     {/* Show Election Manager for current election item */}
