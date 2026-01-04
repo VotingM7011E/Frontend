@@ -18,7 +18,6 @@ interface VoteManagerProps {
 }
 
 const VoteManager: React.FC<VoteManagerProps> = ({ 
-  meetingId,
   pollId,
   hasManagePermission = false
 }) => {

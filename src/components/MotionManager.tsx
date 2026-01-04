@@ -11,16 +11,6 @@ interface Motion {
   motion: string;
 }
 
-interface MotionItem {
-  motion_item_id: string;
-  meeting_id: string;
-  motions: Motion[];
-  poll?: {
-    poll_uuid: string;
-    poll_state: string;
-    poll_options?: string[];
-  };
-}
 
 interface MotionManagerProps {
   meetingId: string;
