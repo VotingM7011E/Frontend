@@ -7,9 +7,7 @@ import KeycloakService from './KeycloakService';
 
 // Use proxy for local development to avoid CORS
 // In production, this will be the actual service URL
-const API_BASE_URL = import.meta.env.DEV 
-  ? '/api'  // Use Vite proxy in development (proxies to localhost:80)
-  : '/api/meeting-service';  // Direct URL in production (uses staging cert)
+const API_BASE_URL = '/api';
 
 interface RequestOptions extends RequestInit {
   requiresAuth?: boolean;
@@ -141,7 +139,7 @@ class ApiService {
   meetings = {
     // POST /meetings - Create a new meeting
     create: (meeting_name: string) =>
-      this.request('/meetings', {
+      this.request('/meeting-service/meetings', {
         method: 'POST',
         body: JSON.stringify({ meeting_name }),
         requiresAuth: true,
@@ -149,14 +147,14 @@ class ApiService {
 
     // GET /meetings/{id} - Get meeting info
     getDetails: (meetingId: string) =>
-      this.request(`/meetings/${meetingId}/`, {
+      this.request(`/meeting-service/meetings/${meetingId}/`, {
         method: 'GET',
         requiresAuth: true,
       }),
 
     // PATCH /meetings/{id} - Update meeting (e.g., current agenda item)
     update: (meetingId: string, updates: { current_item?: number }) =>
-      this.request(`/meetings/${meetingId}/`, {
+      this.request(`/meeting-service/meetings/${meetingId}/`, {
         method: 'PATCH',
         body: JSON.stringify(updates),
         requiresAuth: true,
@@ -164,13 +162,56 @@ class ApiService {
 
     // GET /code/{code} - Get meeting uuid from code (returns plain text UUID)
     getIdByCode: async (code: string) => {
-      const meetingId = await this.requestText(`/code/${code}`, {
+      const meetingId = await this.requestText(`/meeting-service/code/${code}`, {
         method: 'GET',
         requiresAuth: true,
       });
       // Backend returns plain text UUID, wrap it in an object
       return { meeting_id: meetingId };
     },
+  };
+
+  /**
+   * Permissions Endpoints - Permission Service
+   * Note: permission-service sits under `/permission-service` on the API proxy
+   */
+  permissions = {
+    // GET /permission-service/meetings/{meeting_id}/users/{username}/roles/
+    getUserRoles: (meetingId: string, username: string) =>
+      this.request(`/permission-service/meetings/${meetingId}/users/${encodeURIComponent(username)}/roles/`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
+
+    // POST /permission-service/meetings/{meeting_id}/users/{username}/roles/
+    addUserRole: (meetingId: string, username: string, body: any) =>
+      this.request(`/permission-service/meetings/${meetingId}/users/${encodeURIComponent(username)}/roles/`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+        requiresAuth: true,
+      }),
+
+    // PUT /permission-service/meetings/{meeting_id}/users/{username}/roles/
+    replaceUserRoles: (meetingId: string, username: string, roles: any[]) =>
+      this.request(`/permission-service/meetings/${meetingId}/users/${encodeURIComponent(username)}/roles/`, {
+        method: 'PUT',
+        body: JSON.stringify(roles),
+        requiresAuth: true,
+      }),
+
+    // DELETE /permission-service/meetings/{meeting_id}/users/{username}/roles/{role}
+    removeUserRole: (meetingId: string, username: string, role: string) =>
+      this.request(`/permission-service/meetings/${meetingId}/users/${encodeURIComponent(username)}/roles/${encodeURIComponent(role)}`, {
+        method: 'DELETE',
+        requiresAuth: true,
+      }),
+
+    // GET /permission-service/meetings/{meeting_id}/roles/{role}/users
+    getUsersByRole: (meetingId: string, role: string) =>
+      this.request(`/permission-service/meetings/${meetingId}/roles/${encodeURIComponent(role)}/users`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
   };
 
   /**
