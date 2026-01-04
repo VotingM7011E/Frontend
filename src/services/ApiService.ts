@@ -232,6 +232,13 @@ class ApiService {
         method: 'GET',
         requiresAuth: true,
       }),
+
+    // POST /meetings/{meeting_id}/agenda/{agenda_id}/start_vote - Start voting on motions
+    startVoting: (meetingId: string, agendaId: string) =>
+      this.request(`/meeting-service/meetings/${meetingId}/agenda/${agendaId}/start_vote`, {
+        method: 'POST',
+        requiresAuth: true,
+      }),
   };
 
   /**
@@ -268,12 +275,7 @@ class ApiService {
         requiresAuth: true,
       }),
 
-    // POST /meetings/{meeting_id}/motion-items/{motion_item_id}/start_vote - Start voting on motions
-    startVoting: (meetingId: string, motionItemId: string) =>
-      this.request(`/meeting-service/meetings/${meetingId}/motion-items/${motionItemId}/start_vote`, {
-        method: 'POST',
-        requiresAuth: true,
-      }),
+    
   };
 
   /**

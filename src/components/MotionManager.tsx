@@ -192,7 +192,7 @@ const MotionManager: React.FC<MotionManagerProps> = ({
 
   const handleStartVoting = async () => {
     try {
-      await ApiService.motions.startVoting(meetingId, motionItemId);
+      await ApiService.agenda.startVoting(meetingId, motionItemId);
       setError('');
       // Poll should be created, refetch motion item to get poll_id
       setTimeout(async () => {
