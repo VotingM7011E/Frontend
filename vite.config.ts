@@ -7,6 +7,9 @@ export default defineConfig({
   build: {
     minify: false,
   },
+  define: {
+    'process.env.NODE_ENV': JSON.stringify('development'),
+  },
   server: {
     port: 3000,
     open: true,
