@@ -116,7 +116,7 @@ const ParticipantView: React.FC = () => {
     : null;
 
   // Fetch motions when current item is a motion type
-  useEffect(() => {
+  /*useEffect(() => {
     const fetchMotions = async () => {
       if (!currentItem || currentItem.type !== 'motion' || !currentItem.motion_item_id) {
         setMotions([]);
@@ -138,7 +138,7 @@ const ParticipantView: React.FC = () => {
 
     fetchMotions();
   }, [currentItem?.motion_item_id, currentItem?.type]);
-
+  */
   return (
     <div className="participant-view-container">
       {/* Header */}
