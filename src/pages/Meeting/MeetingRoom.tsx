@@ -277,58 +277,73 @@ const MeetingRoom: React.FC = () => {
             )}
 
             {meeting.items && meeting.items.length > 0 ? (
-              <div className="agenda-list">
-                {meeting.items.map((item, index) => (
-                  <div 
-                    key={index} 
-                    className="agenda-item"
-                    style={{
-                      backgroundColor: index === (meeting.current_item ?? -1) ? '#e3f2fd' : 'white',
-                      border: index === (meeting.current_item ?? -1) ? '2px solid #2196F3' : '1px solid #ddd',
-                      padding: '15px',
-                      marginBottom: '10px',
-                      borderRadius: '4px'
-                    }}
-                  >
-                    {index === (meeting.current_item ?? -1) && (
-                      <span style={{ 
-                        backgroundColor: '#2196F3', 
-                        color: 'white', 
-                        padding: '2px 8px', 
-                        borderRadius: '3px',
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        marginRight: '10px'
-                      }}>
-                        CURRENT
-                      </span>
-                    )}
-                    <h3 style={{ display: 'inline' }}>{item.title}</h3>
-                    <span className="agenda-type" style={{ marginLeft: '10px', fontSize: '14px', color: '#666' }}>
-                      [{item.type}]
-                    </span>
-                    {item.description && <p style={{ marginTop: '10px' }}>{item.description}</p>}
-                    {item.baseMotions && item.baseMotions.length > 0 && (
-                      <div className="motions" style={{ marginTop: '10px' }}>
-                        {item.baseMotions.map((motion, i) => (
-                          <div key={i} className="motion" style={{ padding: '5px', backgroundColor: '#f5f5f5', marginTop: '5px', borderRadius: '3px' }}>
-                            <strong>{motion.owner}:</strong> {motion.motion}
-                          </div>
-                        ))}
+              <div style={{ 
+                maxHeight: 'calc(100vh - 400px)', 
+                minHeight: '300px',
+                overflowY: 'auto', 
+                marginBottom: '15px',
+                paddingRight: '5px'
+              }}>
+                <div className="agenda-list">
+                  {meeting.items.map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="agenda-item"
+                      style={{
+                        backgroundColor: index === (meeting.current_item ?? -1) ? '#e3f2fd' : 'white',
+                        border: index === (meeting.current_item ?? -1) ? '2px solid #2196F3' : '1px solid #ddd',
+                        padding: '10px 15px',
+                        marginBottom: '8px',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {index === (meeting.current_item ?? -1) && (
+                          <span style={{ 
+                            backgroundColor: '#2196F3', 
+                            color: 'white', 
+                            padding: '2px 8px', 
+                            borderRadius: '3px',
+                            fontSize: '11px',
+                            fontWeight: 'bold',
+                            flexShrink: 0
+                          }}>
+                            CURRENT
+                          </span>
+                        )}
+                        <h3 style={{ margin: 0, fontSize: '16px', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {item.title}
+                        </h3>
+                        <span className="agenda-type" style={{ fontSize: '12px', color: '#666', flexShrink: 0 }}>
+                          [{item.type}]
+                        </span>
                       </div>
-                    )}
-                    {item.positions && item.positions.length > 0 && (
-                      <div className="positions" style={{ marginTop: '10px' }}>
-                        <strong>Positions:</strong>
-                        <ul style={{ margin: '5px 0', paddingLeft: '20px' }}>
-                          {item.positions.map((pos, i) => (
-                            <li key={i}>{pos}</li>
+                      {item.description && (
+                        <p style={{ margin: 0, fontSize: '13px', color: '#555', lineHeight: '1.4' }}>
+                          {item.description}
+                        </p>
+                      )}
+                      {item.baseMotions && item.baseMotions.length > 0 && (
+                        <div style={{ fontSize: '12px', color: '#666' }}>
+                          <strong>Motions ({item.baseMotions.length}):</strong>
+                          {item.baseMotions.map((motion, i) => (
+                            <div key={i} style={{ padding: '4px 0', borderLeft: '2px solid #ddd', paddingLeft: '8px', marginTop: '4px' }}>
+                              <strong>{motion.owner}:</strong> {motion.motion}
+                            </div>
                           ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                        </div>
+                      )}
+                      {item.positions && item.positions.length > 0 && (
+                        <div style={{ fontSize: '12px', color: '#666' }}>
+                          <strong>Positions ({item.positions.length}):</strong> {item.positions.join(', ')}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <p>No agenda items yet</p>
