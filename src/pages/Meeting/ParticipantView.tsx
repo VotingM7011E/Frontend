@@ -28,7 +28,9 @@ interface Meeting {
 }
 
 const ParticipantView: React.FC = () => {
+  console.log('🚀 ParticipantView component rendering');
   const { meetingId } = useParams<{ meetingId: string }>();
+  console.log('📝 meetingId from params:', meetingId);
   const navigate = useNavigate();
   const [meeting, setMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
@@ -85,11 +87,15 @@ const ParticipantView: React.FC = () => {
     navigate('/dashboard');
   };
 
+  console.log('🔄 Render check - loading:', loading, 'error:', error, 'meeting:', !!meeting);
+
   if (loading) {
+    console.log('📦 Showing loading screen');
     return <div className="loading">Loading meeting...</div>;
   }
 
   if (error) {
+    console.log('❌ Showing error screen:', error);
     return (
       <div className="error-container">
         <p className="error-message">{error}</p>
@@ -101,6 +107,7 @@ const ParticipantView: React.FC = () => {
   }
 
   if (!meeting) {
+    console.log('🤷 Showing meeting not found');
     return (
       <div className="error-container">
         <p className="error-message">Meeting not found</p>
@@ -110,6 +117,8 @@ const ParticipantView: React.FC = () => {
       </div>
     );
   }
+
+  console.log('✅ Proceeding to main render, meeting:', meeting);
 
   const currentItem = meeting.items && meeting.current_item !== undefined 
     ? meeting.items[meeting.current_item] 
