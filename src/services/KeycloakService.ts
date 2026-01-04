@@ -26,12 +26,12 @@ class KeycloakService {
     try {
       console.log('🔐 Initializing Keycloak...');
       const authenticated = await this.keycloak.init({
-        onLoad: 'login-required', // Change from 'check-sso' to force login
-        // silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+        onLoad: 'check-sso', // Change from 'check-sso' to force login
+        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
         pkceMethod: 'S256',
         checkLoginIframe: false,
         enableLogging: true, // Enable Keycloak debug logs
-        // silentCheckSsoFallback: false,
+        silentCheckSsoFallback: false,
       });
 
       console.log('🔐 Keycloak initialized. Authenticated:', authenticated);

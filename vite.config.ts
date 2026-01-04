@@ -5,10 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    minify: false,
+    //minify: false,
   },
   define: {
-    'process.env.NODE_ENV': JSON.stringify('development'),
+    //'process.env.NODE_ENV': JSON.stringify('development'),
   },
   server: {
     port: 3000,
