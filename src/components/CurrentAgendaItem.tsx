@@ -15,12 +15,14 @@ interface CurrentAgendaItemProps {
   meetingId: string;
   currentItem: AgendaItem | null;
   className?: string;
+  hasManagePermission?: boolean;
 }
 
 const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({ 
   meetingId, 
   currentItem,
-  className = ''
+  className = '',
+  hasManagePermission = false
 }) => {
   if (!currentItem) {
     return (
@@ -56,6 +58,7 @@ const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({
           <MotionManager
             meetingId={meetingId}
             motionItemId={currentItem.motion_item_id}
+            hasManagePermission={hasManagePermission}
           />
         </div>
       )}

@@ -328,7 +328,7 @@ const MeetingRoom: React.FC = () => {
                       )}
                       {item.baseMotions && item.baseMotions.length > 0 && (
                         <div style={{ fontSize: '12px', color: '#666' }}>
-                          <strong>Motions ({item.baseMotions.length}):</strong>
+                          <strong>Base motions ({item.baseMotions.length}):</strong>
                           {item.baseMotions.map((motion, i) => (
                             <div key={i} style={{ padding: '4px 0', borderLeft: '2px solid #ddd', paddingLeft: '8px', marginTop: '4px' }}>
                               <strong>{motion.owner}:</strong> {motion.motion}
@@ -484,6 +484,7 @@ const MeetingRoom: React.FC = () => {
                 ? meeting.items[meeting.current_item] 
                 : null}
               className="participant-current-item-card"
+              hasManagePermission={hasManagePermission}
             />
           </div>
         </section>

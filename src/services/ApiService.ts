@@ -267,6 +267,61 @@ class ApiService {
         body: JSON.stringify({ motion }),
         requiresAuth: true,
       }),
+
+    // POST /meetings/{meeting_id}/motion-items/{motion_item_id}/start-voting - Start voting on motions
+    startVoting: (meetingId: string, motionItemId: string) =>
+      this.request(`/meeting-service/meetings/${meetingId}/motion-items/${motionItemId}/start-voting`, {
+        method: 'POST',
+        requiresAuth: true,
+      }),
+  };
+
+  /**
+   * Voting Endpoints - Voting Service
+   */
+  voting = {
+    // GET /polls/{poll_id} - Get poll details
+    getPoll: (pollId: string) =>
+      this.request(`/voting-service/polls/${pollId}`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
+
+    // POST /polls/{poll_id}/vote - Submit a vote
+    submitVote: (pollId: string, vote: any) =>
+      this.request(`/voting-service/polls/${pollId}/vote`, {
+        method: 'POST',
+        body: JSON.stringify(vote),
+        requiresAuth: true,
+      }),
+
+    // GET /polls/{poll_id}/results - Get poll results
+    getResults: (pollId: string) =>
+      this.request(`/voting-service/polls/${pollId}/results`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
+
+    // GET /polls/{poll_id}/status - Get poll status
+    getStatus: (pollId: string) =>
+      this.request(`/voting-service/polls/${pollId}/status`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
+
+    // POST /polls/{poll_id}/close - Close a poll
+    closePoll: (pollId: string) =>
+      this.request(`/voting-service/polls/${pollId}/close`, {
+        method: 'POST',
+        requiresAuth: true,
+      }),
+
+    // GET /meetings/{meeting_id}/polls - Get all polls for a meeting
+    getMeetingPolls: (meetingId: string) =>
+      this.request(`/voting-service/meetings/${meetingId}/polls`, {
+        method: 'GET',
+        requiresAuth: true,
+      }),
   };
 }
 

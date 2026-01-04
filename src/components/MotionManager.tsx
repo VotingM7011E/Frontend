@@ -14,10 +14,14 @@ interface MotionManagerProps {
   meetingId: string;
   motionItemId: string;
   initialMotions?: Array<{ owner: string; motion: string }>;
+  hasManagePermission?: boolean;
 }
 
 const MotionManager: React.FC<MotionManagerProps> = ({ 
-  motionItemId}) => {
+  meetingId,
+  motionItemId,
+  hasManagePermission = false
+}) => {
   const [motions, setMotions] = useState<Motion[]>([]);
   const [motionsLoading, setMotionsLoading] = useState(false);
   const [currentUsername, setCurrentUsername] = useState<string>('');
@@ -157,6 +161,17 @@ const MotionManager: React.FC<MotionManagerProps> = ({
     setError('');
   };
 
+  const handleStartVoting = async () => {
+    try {
+      await ApiService.motions.startVoting(meetingId, motionItemId);
+      setError('');
+      // Success feedback could be added here
+    } catch (err) {
+      console.error('Failed to start voting:', err);
+      setError('Failed to start voting: ' + (err instanceof Error ? err.message : 'Unknown error'));
+    }
+  };
+
   return (
     <div className="motion-manager">
       <h3>Motion Management</h3>
@@ -237,6 +252,19 @@ const MotionManager: React.FC<MotionManagerProps> = ({
           Submit Motion
         </button>
       </div>
+
+      {/* Start Voting Button (Managers Only) */}
+      {hasManagePermission && motions.length > 0 && (
+        <div style={{ marginTop: '20px', borderTop: '2px solid #e0e0e0', paddingTop: '20px' }}>
+          <button 
+            onClick={handleStartVoting}
+            className="new-motion-btn"
+            style={{ backgroundColor: '#FF9800' }}
+          >
+            Start Voting
+          </button>
+        </div>
+      )}
     </div>
   );
 };
