@@ -117,7 +117,13 @@ const ParticipantView: React.FC = () => {
 
   // Fetch motions when current item is a motion type
   useEffect(() => {
-    console.log('🔍 useEffect triggered');
+    console.log('🔍 useEffect triggered, meeting exists:', !!meeting);
+
+    // Don't run if meeting data hasn't loaded yet
+    if (!meeting) {
+      console.log('🔍 Meeting not loaded yet, skipping motion fetch');
+      return;
+    }
 
     const currentItem = meeting.items && meeting.current_item !== undefined
       ? meeting.items[meeting.current_item]
@@ -147,7 +153,7 @@ const ParticipantView: React.FC = () => {
     };
 
     fetchMotions();
-  }, [meeting?.current_item, meeting?.items]); // Use stable meeting properties
+  }, [meeting]); // Only depend on meeting, not its individual properties
   
   return (
     <div className="participant-view-container">
