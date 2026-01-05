@@ -5,7 +5,7 @@ import './VoteManager.css';
 interface Poll {
   poll_id: string;
   poll_uuid?: string;
-  poll_type: 'single' | 'ranked';
+  pollType: 'single' | 'ranked';
   options: string[];
   poll_state: 'open' | 'closed' | 'completed';
   results?: any;
@@ -38,7 +38,7 @@ const VoteManager: React.FC<VoteManagerProps> = ({
         setPoll(data);
         
         // Initialize ranked options with empty array
-        if (data.poll_type === 'ranked') {
+        if (data.pollType === 'ranked') {
           setRankedOptions([]);
         }
       } catch (err) {
@@ -88,7 +88,7 @@ const VoteManager: React.FC<VoteManagerProps> = ({
 
     let voteData: any;
 
-    if (poll.poll_type === 'single') {
+    if (poll.pollType === 'single') {
       if (!selectedOption) {
         setError('Please select an option');
         return;
@@ -176,12 +176,12 @@ const VoteManager: React.FC<VoteManagerProps> = ({
     <div className="vote-manager">
       <h3>Cast Your Vote</h3>
       <p className="vote-type-label">
-        {poll.poll_type === 'single' ? 'Select one option' : 'Rank options in order of preference'}
+        {poll.pollType === 'single' ? 'Select one option' : 'Rank options in order of preference'}
       </p>
 
       {error && <div className="error-message">{error}</div>}
 
-      {poll.poll_type === 'single' ? (
+      {poll.pollType === 'single' ? (
         <div className="vote-options">
           {poll.options.map((option, index) => (
             <button
@@ -247,7 +247,7 @@ const VoteManager: React.FC<VoteManagerProps> = ({
       <button
         onClick={handleSubmitVote}
         className="submit-vote-btn"
-        disabled={submitting || (poll.poll_type === 'single' ? !selectedOption : rankedOptions.length === 0)}
+        disabled={submitting || (poll.pollType === 'single' ? !selectedOption : rankedOptions.length === 0)}
       >
         {submitting ? 'Submitting...' : 'Submit Vote'}
       </button>
