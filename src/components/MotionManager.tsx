@@ -29,6 +29,7 @@ const MotionManager: React.FC<MotionManagerProps> = ({
   const [hasVotePermission, setHasVotePermission] = useState(false);
   const [votingSessionState, setVotingSessionState] = useState<'in_progress' | 'completed' | 'error' | null>(null);
   const [pollHistory, setPollHistory] = useState<PollHistoryRecord[]>([]);
+  const [currentMotionText, setCurrentMotionText] = useState<string>('');
 
   // Helper function to get poll result for a specific motion
   const getMotionResult = (motionUuid: string): PollHistoryRecord | undefined => {
@@ -95,9 +96,20 @@ const MotionManager: React.FC<MotionManagerProps> = ({
         if (motionItem.poll && motionItem.poll.poll_uuid) {
           setActivePollId(motionItem.poll.poll_uuid);
           setVotingActive(motionItem.poll.poll_state === 'open');
+          
+          // Find the motion text for the current poll
+          if (motionItem.poll.motion_uuid && motionItem.motions) {
+            const currentMotion = motionItem.motions.find(
+              (m: Motion) => m.motion_uuid === motionItem.poll!.motion_uuid
+            );
+            if (currentMotion) {
+              setCurrentMotionText(currentMotion.motion);
+            }
+          }
         } else {
           setActivePollId(null);
           setVotingActive(false);
+          setCurrentMotionText('');
         }
       } catch (err) {
         console.error('Failed to fetch motion item:', err);
@@ -169,6 +181,14 @@ const MotionManager: React.FC<MotionManagerProps> = ({
       if (data.motion_item_id === motionItemId) {
         setActivePollId(data.poll_uuid);
         setVotingActive(true);
+        
+        // Find the motion text for this poll
+        if (data.motion_uuid && motions) {
+          const currentMotion = motions.find((m: Motion) => m.motion_uuid === data.motion_uuid);
+          if (currentMotion) {
+            setCurrentMotionText(currentMotion.motion);
+          }
+        }
       }
     };
 
@@ -302,6 +322,7 @@ const MotionManager: React.FC<MotionManagerProps> = ({
           meetingId={meetingId}
           pollId={activePollId}
           hasManagePermission={hasManagePermission}
+          motionTitle={currentMotionText}
         />
       );
     }

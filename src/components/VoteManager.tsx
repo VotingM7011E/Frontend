@@ -6,10 +6,12 @@ interface VoteManagerProps {
   meetingId: string;
   pollId: string;
   hasManagePermission?: boolean;
+  motionTitle?: string;
 }
 
 const VoteManager: React.FC<VoteManagerProps> = ({ 
-  pollId}) => {
+  pollId,
+  motionTitle }) => {
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -137,7 +139,7 @@ const VoteManager: React.FC<VoteManagerProps> = ({
 
   return (
     <div className="vote-manager">
-      <h3>Cast Your Vote</h3>
+      <h3>{motionTitle || 'Cast Your Vote'}</h3>
       <p className="vote-type-label">
         {poll.pollType === 'single' ? 'Select one option' : 'Rank options in order of preference'}
       </p>
