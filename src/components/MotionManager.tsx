@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ApiService, { Motion, MotionItem } from '../services/ApiService';
+import ApiService, { Motion } from '../services/ApiService';
 import MotionSocketService from '../services/MotionSocketService';
 import KeycloakService from '../services/KeycloakService';
 import VoteManager from './VoteManager';
