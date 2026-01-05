@@ -78,6 +78,27 @@ class MotionSocketService {
   }
 
   /**
+   * Listen for poll started events
+   */
+  onPollStarted(callback: (data: any) => void): void {
+    this.socket?.on('poll_started', callback);
+  }
+
+  /**
+   * Listen for poll completed events
+   */
+  onPollCompleted(callback: (data: any) => void): void {
+    this.socket?.on('poll_completed', callback);
+  }
+
+  /**
+   * Listen for voting session completed events
+   */
+  onVotingSessionCompleted(callback: (data: any) => void): void {
+    this.socket?.on('voting_session_completed', callback);
+  }
+
+  /**
    * Listen for motion deleted events (if needed)
    */
   onMotionDeleted(callback: (data: any) => void): void {

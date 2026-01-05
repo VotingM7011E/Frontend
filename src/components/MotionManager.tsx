@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ApiService, { Motion, MotionItem, PollHistoryRecord } from '../services/ApiService';
+import ApiService, { Motion, PollHistoryRecord } from '../services/ApiService';
 import MotionSocketService from '../services/MotionSocketService';
 import KeycloakService from '../services/KeycloakService';
 import VoteManager from './VoteManager';
@@ -163,14 +163,58 @@ const MotionManager: React.FC<MotionManagerProps> = ({
       }
     };
 
+    // Listen for poll started events
+    const handlePollStarted = (data: any) => {
+      console.log('📡 Poll started:', data);
+      if (data.motion_item_id === motionItemId) {
+        setActivePollId(data.poll_uuid);
+        setVotingActive(true);
+      }
+    };
+
+    // Listen for poll completed events
+    const handlePollCompleted = (data: any) => {
+      console.log('📡 Poll completed:', data);
+      if (data.motion_item_id === motionItemId) {
+        // Add to poll history
+        const pollRecord = {
+          motion_uuid: data.motion_uuid,
+          poll_uuid: data.poll_uuid,
+          results: data.results,
+          total_votes: data.total_votes,
+          completed_at: new Date().toISOString()
+        };
+        setPollHistory(prev => [...prev, pollRecord]);
+        setVotingActive(false);
+        setActivePollId(null);
+      }
+    };
+
+    // Listen for voting session completed events
+    const handleVotingSessionCompleted = (data: any) => {
+      console.log('📡 Voting session completed:', data);
+      if (data.motion_item_id === motionItemId) {
+        setVotingSessionState('completed');
+        setPollHistory(data.poll_history || []);
+        setVotingActive(false);
+        setActivePollId(null);
+      }
+    };
+
     MotionSocketService.onMotionAdded(handleMotionAdded);
     MotionSocketService.onMotionUpdated(handleMotionUpdated);
+    MotionSocketService.onPollStarted(handlePollStarted);
+    MotionSocketService.onPollCompleted(handlePollCompleted);
+    MotionSocketService.onVotingSessionCompleted(handleVotingSessionCompleted);
 
     // Cleanup on unmount or when motion item changes
     return () => {
       MotionSocketService.leaveMotionItem(motionItemId);
       MotionSocketService.off('motion_added');
       MotionSocketService.off('motion_updated');
+      MotionSocketService.off('poll_started');
+      MotionSocketService.off('poll_completed');
+      MotionSocketService.off('voting_session_completed');
     };
   }, [motionItemId]);
 
