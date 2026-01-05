@@ -305,13 +305,6 @@ const MotionManager: React.FC<MotionManagerProps> = ({
         />
       );
     }
-
-    return (
-      <div className="motion-manager">
-        <h3>Voting Active</h3>
-        <p className="info-message">Voting is active for this item, but you don't have permission to vote.</p>
-      </div>
-    );
   }
 
   return (
