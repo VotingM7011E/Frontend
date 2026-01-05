@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ApiService from '../services/ApiService';
+import ApiService, { Poll } from '../services/ApiService';
 import './VoteManager.css';
-
-interface Poll {
-  poll_id: string;
-  poll_uuid?: string;
-  pollType: 'single' | 'ranked';
-  options: string[];
-  poll_state: 'open' | 'closed' | 'completed';
-  results?: any;
-}
 
 interface VoteManagerProps {
   meetingId: string;
@@ -33,13 +24,20 @@ const VoteManager: React.FC<VoteManagerProps> = ({
     const fetchPoll = async () => {
       setLoading(true);
       try {
-        const data = await ApiService.voting.getPoll(pollId) as Poll;
+        const data = await ApiService.voting.getPoll(pollId);
         console.log('✅ Fetched poll:', data);
         setPoll(data);
         
         // Initialize ranked options with empty array
         if (data.pollType === 'ranked') {
           setRankedOptions([]);
+        }
+        // Check whether the authenticated user has already voted
+        try {
+          const hv = await ApiService.voting.hasVoted(pollId);
+          setHasVoted(Boolean(hv && (hv as any).has_voted));
+        } catch (e) {
+          console.error('❌ Failed to check hasVoted:', e);
         }
       } catch (err) {
         console.error('❌ Failed to fetch poll:', err);
@@ -116,19 +114,6 @@ const VoteManager: React.FC<VoteManagerProps> = ({
     }
   };
 
-  const handleClosePoll = async () => {
-    try {
-      await ApiService.voting.closePoll(pollId);
-      // Refetch poll to get updated state
-      const data = await ApiService.voting.getPoll(pollId) as Poll;
-      setPoll(data);
-      setError('');
-    } catch (err) {
-      console.error('❌ Failed to close poll:', err);
-      setError('Failed to close poll: ' + (err instanceof Error ? err.message : 'Unknown error'));
-    }
-  };
-
   if (loading) {
     return <div className="vote-manager"><p>Loading poll...</p></div>;
   }
@@ -141,31 +126,11 @@ const VoteManager: React.FC<VoteManagerProps> = ({
     return <div className="vote-manager"><p>No active poll</p></div>;
   }
 
-  if (poll.poll_state === 'closed' || poll.poll_state === 'completed') {
-    return (
-      <div className="vote-manager">
-        <h3>Voting Closed</h3>
-        <p>This poll has been closed. Results will be available soon.</p>
-        {poll.results && (
-          <div className="poll-results">
-            <h4>Results:</h4>
-            <pre>{JSON.stringify(poll.results, null, 2)}</pre>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   if (hasVoted) {
     return (
       <div className="vote-manager">
         <h3>Vote Submitted</h3>
         <p className="success-message">✓ Your vote has been recorded successfully!</p>
-        {hasManagePermission && (
-          <button onClick={handleClosePoll} className="close-poll-btn">
-            Close Poll
-          </button>
-        )}
       </div>
     );
   }
@@ -251,12 +216,6 @@ const VoteManager: React.FC<VoteManagerProps> = ({
       >
         {submitting ? 'Submitting...' : 'Submit Vote'}
       </button>
-
-      {hasManagePermission && (
-        <button onClick={handleClosePoll} className="close-poll-btn" style={{ marginTop: '10px' }}>
-          Close Poll
-        </button>
-      )}
     </div>
   );
 };

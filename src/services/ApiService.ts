@@ -13,6 +13,30 @@ interface RequestOptions extends RequestInit {
   requiresAuth?: boolean;
 }
 
+// --- Voting types ---
+export interface Poll {
+  meeting_id: string;
+  pollType: 'single' | 'ranked';
+  options: string[];
+}
+
+export interface SubmitVoteRequest {
+  vote: string[];
+}
+
+export interface SubmitVoteResponse {
+  message: string;
+}
+
+export interface HasVotedResponse {
+  has_voted: boolean;
+}
+
+export interface VoteCountResponse {
+  eligible_voters: number;
+  votes: Record<string, number>;
+}
+
 class ApiService {
   private baseUrl: string;
 
@@ -283,44 +307,30 @@ class ApiService {
    */
   voting = {
     // GET /polls/{poll_id} - Get poll details
-    getPoll: (pollId: string) =>
-      this.request(`/voting-service/polls/${pollId}/`, {
+    getPoll: (pollId: string): Promise<Poll> =>
+      this.request<Poll>(`/voting-service/polls/${pollId}/`, {
         method: 'GET',
         requiresAuth: true,
       }),
 
     // POST /polls/{poll_id}/vote - Submit a vote
-    submitVote: (pollId: string, vote: any) =>
-      this.request(`/voting-service/polls/${pollId}/vote`, {
+    submitVote: (pollId: string, vote: SubmitVoteRequest): Promise<SubmitVoteResponse> =>
+      this.request<SubmitVoteResponse>(`/voting-service/polls/${pollId}/vote`, {
         method: 'POST',
         body: JSON.stringify(vote),
         requiresAuth: true,
       }),
 
-    // GET /polls/{poll_id}/results - Get poll results
-    getResults: (pollId: string) =>
-      this.request(`/voting-service/polls/${pollId}/results`, {
+    // GET /polls/{poll_id}/votes - Get poll vote counts (eligible_voters + votes)
+    getResults: (pollId: string): Promise<VoteCountResponse> =>
+      this.request<VoteCountResponse>(`/voting-service/polls/${pollId}/votes`, {
         method: 'GET',
         requiresAuth: true,
       }),
 
-    // GET /polls/{poll_id}/status - Get poll status
-    getStatus: (pollId: string) =>
-      this.request(`/voting-service/polls/${pollId}/status`, {
-        method: 'GET',
-        requiresAuth: true,
-      }),
-
-    // POST /polls/{poll_id}/close - Close a poll
-    closePoll: (pollId: string) =>
-      this.request(`/voting-service/polls/${pollId}/close`, {
-        method: 'POST',
-        requiresAuth: true,
-      }),
-
-    // GET /meetings/{meeting_id}/polls - Get all polls for a meeting
-    getMeetingPolls: (meetingId: string) =>
-      this.request(`/voting-service/meetings/${meetingId}/polls`, {
+    // GET /polls/{poll_id}/vote - Check whether the authenticated user has voted
+    hasVoted: (pollId: string): Promise<HasVotedResponse> =>
+      this.request<HasVotedResponse>(`/voting-service/polls/${pollId}/vote`, {
         method: 'GET',
         requiresAuth: true,
       }),
