@@ -170,6 +170,8 @@ const VoteManager: React.FC<VoteManagerProps> = ({
     );
   }
 
+  console.log('🗳️ Rendering voting interface for poll:', poll);
+
   return (
     <div className="vote-manager">
       <h3>Cast Your Vote</h3>
