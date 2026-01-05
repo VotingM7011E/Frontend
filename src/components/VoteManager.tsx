@@ -9,9 +9,7 @@ interface VoteManagerProps {
 }
 
 const VoteManager: React.FC<VoteManagerProps> = ({ 
-  pollId,
-  hasManagePermission = false
-}) => {
+  pollId}) => {
   const [poll, setPoll] = useState<Poll | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

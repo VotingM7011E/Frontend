@@ -33,6 +33,7 @@ const MotionManager: React.FC<MotionManagerProps> = ({
   const [error, setError] = useState('');
   const [activePollId, setActivePollId] = useState<string | null>(null);
   const [votingActive, setVotingActive] = useState(false);
+  const [hasVotePermission, setHasVotePermission] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -43,6 +44,28 @@ const MotionManager: React.FC<MotionManagerProps> = ({
     };
     fetchUser();
   }, []);
+
+  // Check whether current user has 'vote' permission for this meeting
+  useEffect(() => {
+    const checkVotePermission = async () => {
+      if (!currentUsername || !meetingId) return;
+      try {
+        const roles = await ApiService.permissions.getUserRoles(meetingId, currentUsername) as any;
+        let roleList: string[] = [];
+        if (Array.isArray(roles)) {
+          roleList = roles;
+        } else if (roles && Array.isArray((roles as any).roles)) {
+          roleList = (roles as any).roles;
+        }
+        setHasVotePermission(roleList.includes('vote'));
+      } catch (err) {
+        console.error('Failed to check vote permission:', err);
+        setHasVotePermission(false);
+      }
+    };
+
+    checkVotePermission();
+  }, [currentUsername, meetingId]);
 
   // Check for active poll
   useEffect(() => {
@@ -210,12 +233,21 @@ const MotionManager: React.FC<MotionManagerProps> = ({
 
   // If voting is active, show VoteManager instead
   if (votingActive && activePollId) {
+    if (hasVotePermission) {
+      return (
+        <VoteManager
+          meetingId={meetingId}
+          pollId={activePollId}
+          hasManagePermission={hasManagePermission}
+        />
+      );
+    }
+
     return (
-      <VoteManager
-        meetingId={meetingId}
-        pollId={activePollId}
-        hasManagePermission={hasManagePermission}
-      />
+      <div className="motion-manager">
+        <h3>Voting Active</h3>
+        <p className="info-message">Voting is active for this item, but you don't have permission to vote.</p>
+      </div>
     );
   }
 
