@@ -37,6 +37,41 @@ export interface VoteCountResponse {
   votes: Record<string, number>;
 }
 
+// --- Motion types ---
+export interface Motion {
+  motion_uuid: string;
+  owner: string;
+  motion: string;
+}
+
+export interface PollInfo {
+  poll_uuid: string;
+  poll_state: 'open' | 'closed' | 'completed';
+  motion_uuid?: string;
+  created_at?: string;
+}
+
+export interface VotingSession {
+  state: 'in_progress' | 'completed' | 'error';
+  motion_queue: string[];
+  current_index: number;
+  poll_history: any[];
+  started_at?: string;
+  completed_at?: string;
+}
+
+export interface MotionItem {
+  meeting_id: string;
+  motion_item_id: string;
+  motions: Motion[];
+  poll?: PollInfo;
+  voting_session?: VotingSession;
+}
+
+export interface MotionResponse {
+  message: string;
+}
+
 class ApiService {
   private baseUrl: string;
 
@@ -270,36 +305,34 @@ class ApiService {
    */
   motions = {
     // GET /items/{motion_item_id}/ - Get motion item info
-    getMotionItem: (motionItemId: string) =>
-      this.request(`/motion-service/items/${motionItemId}/`, {
+    getMotionItem: (motionItemId: string): Promise<MotionItem> =>
+      this.request<MotionItem>(`/motion-service/items/${motionItemId}/`, {
         method: 'GET',
         requiresAuth: true,
       }),
 
     // GET /items/{motion_item_id}/motions - Get all motions for a motion item
-    getMotions: (motionItemId: string) =>
-      this.request(`/motion-service/items/${motionItemId}/motions`, {
+    getMotions: (motionItemId: string): Promise<Motion[]> =>
+      this.request<Motion[]>(`/motion-service/items/${motionItemId}/motions`, {
         method: 'GET',
         requiresAuth: true,
       }),
 
     // POST /items/{motion_item_id}/motions - Add a motion
-    createMotion: (motionItemId: string, motion: string) =>
-      this.request(`/motion-service/items/${motionItemId}/motions`, {
+    createMotion: (motionItemId: string, motion: string): Promise<MotionResponse> =>
+      this.request<MotionResponse>(`/motion-service/items/${motionItemId}/motions`, {
         method: 'POST',
         body: JSON.stringify({ motion }),
         requiresAuth: true,
       }),
 
     // PATCH /items/{motion_item_id}/motions/{motion_id} - Update a motion
-    updateMotion: (motionItemId: string, motionId: string, motion: string) =>
-      this.request(`/motion-service/items/${motionItemId}/motions/${motionId}`, {
+    updateMotion: (motionItemId: string, motionId: string, motion: string): Promise<MotionResponse> =>
+      this.request<MotionResponse>(`/motion-service/items/${motionItemId}/motions/${motionId}`, {
         method: 'PATCH',
         body: JSON.stringify({ motion }),
         requiresAuth: true,
       }),
-
-    
   };
 
   /**

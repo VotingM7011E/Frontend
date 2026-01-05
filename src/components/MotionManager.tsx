@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import ApiService from '../services/ApiService';
+import ApiService, { Motion, MotionItem } from '../services/ApiService';
 import MotionSocketService from '../services/MotionSocketService';
 import KeycloakService from '../services/KeycloakService';
 import VoteManager from './VoteManager';
 import './MotionManager.css';
-
-interface Motion {
-  motion_uuid: string;
-  owner: string;
-  motion: string;
-}
-
 
 interface MotionManagerProps {
   meetingId: string;
@@ -34,6 +27,7 @@ const MotionManager: React.FC<MotionManagerProps> = ({
   const [activePollId, setActivePollId] = useState<string | null>(null);
   const [votingActive, setVotingActive] = useState(false);
   const [hasVotePermission, setHasVotePermission] = useState(false);
+  const [votingSessionState, setVotingSessionState] = useState<'in_progress' | 'completed' | 'error' | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -73,12 +67,22 @@ const MotionManager: React.FC<MotionManagerProps> = ({
       if (!motionItemId) return;
       
       try {
-        const motionItem = await ApiService.motions.getMotionItem(motionItemId) as any;
+        const motionItem = await ApiService.motions.getMotionItem(motionItemId);
         console.log('📋 Motion item data:', motionItem);
+        
+        // Check voting session state
+        if (motionItem.voting_session) {
+          setVotingSessionState(motionItem.voting_session.state);
+        } else {
+          setVotingSessionState(null);
+        }
         
         if (motionItem.poll && motionItem.poll.poll_uuid) {
           setActivePollId(motionItem.poll.poll_uuid);
-          setVotingActive(motionItem.poll.poll_state === 'open' || motionItem.poll.poll_state === 'created');
+          setVotingActive(motionItem.poll.poll_state === 'open');
+        } else {
+          setActivePollId(null);
+          setVotingActive(false);
         }
       } catch (err) {
         console.error('Failed to fetch motion item:', err);
@@ -297,7 +301,7 @@ const MotionManager: React.FC<MotionManagerProps> = ({
                       <span className="motion-owner">{m.owner}:</span>
                       <span className="motion-text">{m.motion}</span>
                     </div>
-                    {m.owner === currentUsername && (
+                    {m.owner === currentUsername && !votingSessionState && (
                       <button 
                         onClick={() => handleEditMotion(m)}
                         className="motion-edit-btn"
@@ -313,27 +317,29 @@ const MotionManager: React.FC<MotionManagerProps> = ({
         )}
       </div>
 
-      {/* New Motion Form */}
-      <div className="new-motion-form">
-        <h4>Submit a New Motion</h4>
-        <textarea
-          value={newMotionText}
-          onChange={(e) => setNewMotionText(e.target.value)}
-          placeholder="Enter your motion here..."
-          className="new-motion-input"
-          rows={3}
-        />
-        <button 
-          onClick={handleCreateMotion}
-          className="new-motion-btn"
-          disabled={!newMotionText.trim()}
-        >
-          Submit Motion
-        </button>
-      </div>
+      {/* New Motion Form - Only show when voting is not in progress or completed */}
+      {!votingSessionState && (
+        <div className="new-motion-form">
+          <h4>Submit a New Motion</h4>
+          <textarea
+            value={newMotionText}
+            onChange={(e) => setNewMotionText(e.target.value)}
+            placeholder="Enter your motion here..."
+            className="new-motion-input"
+            rows={3}
+          />
+          <button 
+            onClick={handleCreateMotion}
+            className="new-motion-btn"
+            disabled={!newMotionText.trim()}
+          >
+            Submit Motion
+          </button>
+        </div>
+      )}
 
-      {/* Start Voting Button (Managers Only) */}
-      {hasManagePermission && motions.length > 0 && (
+      {/* Start Voting Button (Managers Only) - Only show when voting hasn't started */}
+      {hasManagePermission && motions.length > 0 && !votingSessionState && (
         <div style={{ marginTop: '20px', borderTop: '2px solid #e0e0e0', paddingTop: '20px' }}>
           <button 
             onClick={handleStartVoting}
