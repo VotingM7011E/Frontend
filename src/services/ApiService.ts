@@ -284,7 +284,7 @@ class ApiService {
   voting = {
     // GET /polls/{poll_id} - Get poll details
     getPoll: (pollId: string) =>
-      this.request(`/voting-service/polls/${pollId}`, {
+      this.request(`/voting-service/polls/${pollId}/`, {
         method: 'GET',
         requiresAuth: true,
       }),
