@@ -93,13 +93,13 @@ const VoteManager: React.FC<VoteManagerProps> = ({
         setError('Please select an option');
         return;
       }
-      voteData = { vote: selectedOption };
+      voteData = { vote: [selectedOption] };
     } else {
       if (rankedOptions.length === 0) {
         setError('Please rank at least one option');
         return;
       }
-      voteData = { ranking: rankedOptions };
+      voteData = { vote: rankedOptions };
     }
 
     setSubmitting(true);
