@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ApiService, { Motion } from '../services/ApiService';
+import ApiService, { Motion, MotionItem, PollHistoryRecord } from '../services/ApiService';
 import MotionSocketService from '../services/MotionSocketService';
 import KeycloakService from '../services/KeycloakService';
 import VoteManager from './VoteManager';
@@ -28,6 +28,19 @@ const MotionManager: React.FC<MotionManagerProps> = ({
   const [votingActive, setVotingActive] = useState(false);
   const [hasVotePermission, setHasVotePermission] = useState(false);
   const [votingSessionState, setVotingSessionState] = useState<'in_progress' | 'completed' | 'error' | null>(null);
+  const [pollHistory, setPollHistory] = useState<PollHistoryRecord[]>([]);
+
+  // Helper function to get poll result for a specific motion
+  const getMotionResult = (motionUuid: string): PollHistoryRecord | undefined => {
+    return pollHistory.find(record => record.motion_uuid === motionUuid);
+  };
+
+  // Helper function to determine if a motion passed
+  const didMotionPass = (result: PollHistoryRecord): boolean => {
+    const yesVotes = result.results['yes'] || 0;
+    const noVotes = result.results['no'] || 0;
+    return yesVotes > noVotes;
+  };
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -73,8 +86,10 @@ const MotionManager: React.FC<MotionManagerProps> = ({
         // Check voting session state
         if (motionItem.voting_session) {
           setVotingSessionState(motionItem.voting_session.state);
+          setPollHistory(motionItem.voting_session.poll_history || []);
         } else {
           setVotingSessionState(null);
+          setPollHistory([]);
         }
         
         if (motionItem.poll && motionItem.poll.poll_uuid) {
@@ -300,6 +315,19 @@ const MotionManager: React.FC<MotionManagerProps> = ({
                     <div className="motion-content">
                       <span className="motion-owner">{m.owner}:</span>
                       <span className="motion-text">{m.motion}</span>
+                      {(() => {
+                        const result = getMotionResult(m.motion_uuid);
+                        if (result) {
+                          const passed = didMotionPass(result);
+                          return (
+                            <span className={`motion-result ${passed ? 'passed' : 'failed'}`}>
+                              {passed ? '✓ Passed' : '✗ Failed'} 
+                              (Yes: {result.results['yes'] || 0}, No: {result.results['no'] || 0}, Abstain: {result.results['abstain'] || 0})
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                     {m.owner === currentUsername && !votingSessionState && (
                       <button 

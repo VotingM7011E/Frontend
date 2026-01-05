@@ -51,11 +51,19 @@ export interface PollInfo {
   created_at?: string;
 }
 
+export interface PollHistoryRecord {
+  motion_uuid: string;
+  poll_uuid: string;
+  results: Record<string, number>;
+  total_votes: number;
+  completed_at: string;
+}
+
 export interface VotingSession {
   state: 'in_progress' | 'completed' | 'error';
   motion_queue: string[];
   current_index: number;
-  poll_history: any[];
+  poll_history: PollHistoryRecord[];
   started_at?: string;
   completed_at?: string;
 }
