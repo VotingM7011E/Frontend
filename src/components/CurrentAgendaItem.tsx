@@ -14,6 +14,7 @@ interface AgendaItem {
 interface CurrentAgendaItemProps {
   meetingId: string;
   currentItem: AgendaItem | null;
+  currentItemIndex: number;  // Add this to pass to ElectionManager
   className?: string;
   hasManagePermission?: boolean;
 }
@@ -21,6 +22,7 @@ interface CurrentAgendaItemProps {
 const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({ 
   meetingId, 
   currentItem,
+  currentItemIndex,
   className = '',
   hasManagePermission = false
 }) => {
@@ -68,6 +70,7 @@ const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({
         <div style={{ marginTop: '20px', textAlign: 'left' }}>
           <ElectionManager
             meetingId={meetingId}
+            agendaItemIndex={currentItemIndex}
             positions={currentItem.positions}
           />
         </div>

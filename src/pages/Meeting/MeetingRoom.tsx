@@ -494,6 +494,7 @@ const MeetingRoom: React.FC = () => {
               currentItem={meeting.items && meeting.current_item !== undefined 
                 ? meeting.items[meeting.current_item] 
                 : null}
+              currentItemIndex={meeting.current_item !== undefined ? meeting.current_item : 0}
               className="participant-current-item-card"
               hasManagePermission={hasManagePermission}
             />

@@ -134,6 +134,7 @@ const ParticipantView: React.FC = () => {
           <CurrentAgendaItem
             meetingId={meeting.meeting_id}
             currentItem={currentItem}
+            currentItemIndex={meeting.current_item !== undefined ? meeting.current_item : 0}
           />
         </div>
       </main>
