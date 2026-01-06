@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import VoteManager from './VoteManager';
 import ApiService from '../services/ApiService';
 import KeycloakService from '../services/KeycloakService';
+import ElectionSocketService from '../services/ElectionSocketService';
 import './ElectionManager.css';
 
 interface Position {
@@ -81,6 +82,64 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
 
     checkVotePermission();
   }, [currentUsername, meetingId]);
+
+  // WebSocket connection and event listeners
+  useEffect(() => {
+    // Connect to Election Service WebSocket
+    ElectionSocketService.connect();
+    ElectionSocketService.joinElection(meetingId);
+
+    // Listen for position created events
+    ElectionSocketService.onPositionCreated((data: any) => {
+      console.log('Position created:', data);
+      if (data.meeting_id === meetingId && data.position) {
+        setCreatedPositions(prev => {
+          // Check if position already exists
+          const exists = prev.some(p => p.position_id === data.position.position_id);
+          if (exists) return prev;
+          return [...prev, data.position];
+        });
+      }
+    });
+
+    // Listen for nomination added events
+    ElectionSocketService.onNominationAdded((data: any) => {
+      console.log('Nomination added:', data);
+      if (data.meeting_id === meetingId && data.nomination) {
+        loadNominations(data.position_id);
+      }
+    });
+
+    // Listen for nomination accepted events
+    ElectionSocketService.onNominationAccepted((data: any) => {
+      console.log('Nomination accepted:', data);
+      if (data.meeting_id === meetingId) {
+        loadNominations(data.position_id);
+      }
+    });
+
+    // Listen for position closed events
+    ElectionSocketService.onPositionClosed((data: any) => {
+      console.log('Position closed:', data);
+      if (data.meeting_id === meetingId && data.position) {
+        setCreatedPositions(prev => 
+          prev.map(p => p.position_id === data.position.position_id 
+            ? { ...p, is_open: false, poll_id: data.position.poll_id }
+            : p
+          )
+        );
+      }
+    });
+
+    // Cleanup on unmount
+    return () => {
+      ElectionSocketService.off('position_created');
+      ElectionSocketService.off('nomination_added');
+      ElectionSocketService.off('nomination_accepted');
+      ElectionSocketService.off('position_closed');
+      ElectionSocketService.leaveElection(meetingId);
+    };
+  }, [meetingId]);
 
   // Initialize positions
   useEffect(() => {
