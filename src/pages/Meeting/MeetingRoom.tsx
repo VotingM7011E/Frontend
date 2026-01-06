@@ -342,6 +342,17 @@ const MeetingRoom: React.FC = () => {
                           <strong>Positions ({item.positions.length}):</strong> {item.positions.join(', ')}
                         </div>
                       )}
+                      {/* Show Election Manager for current election item */}
+                      {index === (meeting.current_item ?? -1) && item.type === 'election' && item.positions && (
+                        <div style={{ marginTop: '10px' }}>
+                          <ElectionManager
+                            meetingId={meeting.meeting_id}
+                            agendaItemIndex={index}
+                            positions={item.positions}
+                            hasManagePermission={hasManagePermission}
+                          />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
