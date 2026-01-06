@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import VoteManager from './VoteManager';
+import ApiService from '../services/ApiService';
+import KeycloakService from '../services/KeycloakService';
 import './ElectionManager.css';
 
 interface Position {
@@ -19,6 +22,7 @@ interface ElectionManagerProps {
   meetingId: string;
   agendaItemIndex: number;  // Index of this agenda item to create unique identifier
   positions: string[];
+  hasManagePermission?: boolean;
   onClose?: () => void;
 }
 
@@ -30,6 +34,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
   meetingId,
   agendaItemIndex,
   positions,
+  hasManagePermission = false,
   onClose 
 }) => {
   const [createdPositions, setCreatedPositions] = useState<Position[]>([]);
@@ -37,10 +42,45 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newNominee, setNewNominee] = useState<Record<number, string>>({});
+  const [hasVotePermission, setHasVotePermission] = useState(false);
+  const [currentUsername, setCurrentUsername] = useState<string>('');
   const initializingRef = React.useRef(false); // Prevent double initialization
   
   // Create unique identifier for this agenda item
   const agendaItemId = `${meetingId}-agenda-${agendaItemIndex}`;
+
+  // Get current user
+  useEffect(() => {
+    const fetchUser = async () => {
+      const profile = await KeycloakService.getUserProfile();
+      if (profile) {
+        setCurrentUsername(profile.username);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  // Check vote permission
+  useEffect(() => {
+    const checkVotePermission = async () => {
+      if (!currentUsername || !meetingId) return;
+      try {
+        const roles = await ApiService.permissions.getUserRoles(meetingId, currentUsername) as any;
+        let roleList: string[] = [];
+        if (Array.isArray(roles)) {
+          roleList = roles;
+        } else if (roles && Array.isArray((roles as any).roles)) {
+          roleList = (roles as any).roles;
+        }
+        setHasVotePermission(roleList.includes('vote'));
+      } catch (err) {
+        console.error('Failed to check vote permission:', err);
+        setHasVotePermission(false);
+      }
+    };
+
+    checkVotePermission();
+  }, [currentUsername, meetingId]);
 
   // Initialize positions
   useEffect(() => {
@@ -274,12 +314,20 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
               </>
             )}
 
-            {position.poll_id && (
-              <div className="voting-info">
-                <p>Voting is now open!</p>
-                <p className="poll-id">Poll ID: <code>{position.poll_id}</code></p>
-                <button className="view-results-btn">View Results</button>
-              </div>
+            {position.poll_id && !position.is_open && (
+              hasVotePermission ? (
+                <VoteManager
+                  meetingId={meetingId}
+                  pollId={position.poll_id}
+                  hasManagePermission={hasManagePermission}
+                  motionTitle={`Election: ${position.position_name}`}
+                />
+              ) : (
+                <div className="voting-info">
+                  <p>Voting is now open for {position.position_name}</p>
+                  <p className="info-text">You need vote permission to participate</p>
+                </div>
+              )
             )}
           </div>
         );

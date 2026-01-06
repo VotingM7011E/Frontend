@@ -72,6 +72,7 @@ const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({
             meetingId={meetingId}
             agendaItemIndex={currentItemIndex}
             positions={currentItem.positions}
+            hasManagePermission={hasManagePermission}
           />
         </div>
       )}
