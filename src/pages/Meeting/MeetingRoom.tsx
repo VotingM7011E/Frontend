@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ApiService from '../../services/ApiService';
 import SocketService from '../../services/SocketService';
 import CurrentAgendaItem from '../../components/CurrentAgendaItem';
+import ElectionManager from '../../components/ElectionManager';
 import './Meeting.css';
 import AuthContext from '../../context/AuthContext';
 
@@ -339,6 +340,16 @@ const MeetingRoom: React.FC = () => {
                       {item.positions && item.positions.length > 0 && (
                         <div style={{ fontSize: '12px', color: '#666' }}>
                           <strong>Positions ({item.positions.length}):</strong> {item.positions.join(', ')}
+                        </div>
+                      )}
+                      {/* Show Election Manager for current election item */}
+                      {index === (meeting.current_item ?? -1) && item.type === 'election' && item.positions && (
+                        <div style={{ marginTop: '10px' }}>
+                          <ElectionManager
+                            meetingId={meeting.meeting_id}
+                            agendaItemIndex={index}
+                            positions={item.positions}
+                          />
                         </div>
                       )}
                     </div>

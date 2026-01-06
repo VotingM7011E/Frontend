@@ -17,6 +17,7 @@ interface Nomination {
 
 interface ElectionManagerProps {
   meetingId: string;
+  agendaItemIndex: number;  // Index of this agenda item to create unique identifier
   positions: string[];
   onClose?: () => void;
 }
@@ -26,7 +27,8 @@ const ELECTION_SERVICE_URL = import.meta.env.DEV
   : '/api/election-service';
 
 const ElectionManager: React.FC<ElectionManagerProps> = ({ 
-  meetingId, 
+  meetingId,
+  agendaItemIndex,
   positions,
   onClose 
 }) => {
@@ -35,14 +37,17 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newNominee, setNewNominee] = useState<Record<number, string>>({});
+  
+  // Create unique identifier for this agenda item
+  const agendaItemId = `${meetingId}-agenda-${agendaItemIndex}`;
 
   // Initialize positions
   useEffect(() => {
     const initializePositions = async () => {
       setLoading(true);
       try {
-        // Check if positions already exist
-        const response = await fetch(`${ELECTION_SERVICE_URL}/positions?meeting_id=${meetingId}`);
+        // Check if positions already exist for THIS specific agenda item
+        const response = await fetch(`${ELECTION_SERVICE_URL}/positions?meeting_id=${meetingId}&agenda_item_id=${agendaItemId}`);
         const existingPositions = await response.json();
         
         if (existingPositions.length > 0) {
@@ -52,7 +57,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
             await loadNominations(pos.position_id);
           }
         } else {
-          // Create positions
+          // Create positions for this specific agenda item
           const created: Position[] = [];
           for (const positionName of positions) {
             const response = await fetch(`${ELECTION_SERVICE_URL}/positions`, {
@@ -60,6 +65,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 meeting_id: meetingId,
+                agenda_item_id: agendaItemId,
                 position_name: positionName
               })
             });
@@ -83,7 +89,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
     if (positions.length > 0) {
       initializePositions();
     }
-  }, [meetingId, positions]);
+  }, [meetingId, agendaItemId, positions]);
 
   const loadNominations = async (positionId: number) => {
     try {
