@@ -66,7 +66,9 @@ const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({
       )}
 
       {/* Show positions for election type */}
-      {currentItem.type === 'election' && currentItem.positions && currentItem.positions.length > 0 && (
+      {/* Only show ElectionManager if user does NOT have manage permission (participants only) */}
+      {/* Owners see ElectionManager in the agenda list to avoid duplicate component instances */}
+      {currentItem.type === 'election' && currentItem.positions && currentItem.positions.length > 0 && !hasManagePermission && (
         <div style={{ marginTop: '20px', textAlign: 'left' }}>
           <ElectionManager
             meetingId={meetingId}
@@ -74,6 +76,14 @@ const CurrentAgendaItem: React.FC<CurrentAgendaItemProps> = ({
             positions={currentItem.positions}
             hasManagePermission={hasManagePermission}
           />
+        </div>
+      )}
+      {/* Show simple election info for owners (they manage it in the agenda list) */}
+      {currentItem.type === 'election' && currentItem.positions && currentItem.positions.length > 0 && hasManagePermission && (
+        <div style={{ marginTop: '20px', padding: '15px', background: '#f5f5f5', borderRadius: '8px' }}>
+          <p style={{ margin: 0, color: '#666' }}>
+            Manage this election in the agenda list above
+          </p>
         </div>
       )}
     </div>
