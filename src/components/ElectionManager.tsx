@@ -141,8 +141,14 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
     };
   }, [meetingId]);
 
-  // Initialize positions
+  // Initialize positions - reset when agendaItemId changes
   useEffect(() => {
+    // Reset state when agenda item changes
+    setCreatedPositions([]);
+    setNominations({});
+    setError('');
+    initializingRef.current = false;
+    
     const initializePositions = async () => {
       // Prevent concurrent initializations
       if (initializingRef.current) return;
