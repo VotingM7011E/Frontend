@@ -37,6 +37,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [newNominee, setNewNominee] = useState<Record<number, string>>({});
+  const initializingRef = React.useRef(false); // Prevent double initialization
   
   // Create unique identifier for this agenda item
   const agendaItemId = `${meetingId}-agenda-${agendaItemIndex}`;
@@ -44,6 +45,10 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
   // Initialize positions
   useEffect(() => {
     const initializePositions = async () => {
+      // Prevent concurrent initializations
+      if (initializingRef.current) return;
+      initializingRef.current = true;
+      
       setLoading(true);
       try {
         // Check if positions already exist for THIS specific agenda item
