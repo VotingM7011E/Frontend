@@ -89,7 +89,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
     if (positions.length > 0) {
       initializePositions();
     }
-  }, [meetingId, agendaItemId, positions]);
+  }, [meetingId, agendaItemId]); // Remove 'positions' to prevent re-running when parent re-renders
 
   const loadNominations = async (positionId: number) => {
     try {
