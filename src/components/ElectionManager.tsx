@@ -46,6 +46,7 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
   const [hasVotePermission, setHasVotePermission] = useState(false);
   const [currentUsername, setCurrentUsername] = useState<string>('');
   const initializingRef = React.useRef(false); // Prevent double initialization
+  const prevAgendaItemIdRef = React.useRef<string>(''); // Track agenda item changes
   
   // Create unique identifier for this agenda item
   const agendaItemId = `${meetingId}-agenda-${agendaItemIndex}`;
@@ -141,13 +142,17 @@ const ElectionManager: React.FC<ElectionManagerProps> = ({
     };
   }, [meetingId]);
 
-  // Initialize positions - reset when agendaItemId changes
+  // Initialize positions - reset only when agendaItemId actually changes
   useEffect(() => {
-    // Reset state when agenda item changes
-    setCreatedPositions([]);
-    setNominations({});
-    setError('');
-    initializingRef.current = false;
+    // Check if agenda item has changed
+    if (prevAgendaItemIdRef.current !== agendaItemId) {
+      // Reset state when agenda item changes
+      setCreatedPositions([]);
+      setNominations({});
+      setError('');
+      initializingRef.current = false;
+      prevAgendaItemIdRef.current = agendaItemId;
+    }
     
     const initializePositions = async () => {
       // Prevent concurrent initializations
